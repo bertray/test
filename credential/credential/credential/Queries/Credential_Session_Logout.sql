@@ -1,0 +1,3 @@
+﻿UPDATE [TB_R_USER_SESSION]
+SET LOGOUT_TIME = @LogoutTime
+WHERE ID = @Id

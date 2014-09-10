@@ -1,0 +1,24 @@
+﻿INSERT INTO [TB_R_USER_SESSION_HISTORY]
+           ([ID]
+           ,[USERNAME]
+           ,[LOGIN_TIME]
+           ,[LOGOUT_TIME]
+           ,[TIMEOUT]
+           ,[LOCATION]
+           ,[CLIENT_AGENT]
+           ,[LOCK_TIMEOUT]
+           ,[LOCKED]
+           ,[LOCK_TIME]
+           ,[UNLOCK_TIME])
+     VALUES
+           (@Id
+           ,@Username
+           ,@LoginTime
+           ,@LogoutTime
+           ,@Timeout
+           ,@Location
+           ,@ClientAgent
+           ,@LockTimeout
+           ,@Locked
+           ,@LockTime
+           ,@UnlockTime)
