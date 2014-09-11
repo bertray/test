@@ -1,0 +1,3 @@
+﻿UPDATE [TB_R_BACKGROUND_TASK_QUEUE]
+SET [START_TIME] = @StartTime, [FINISH_TIME] = @FinishTime
+WHERE [ID] = @Id

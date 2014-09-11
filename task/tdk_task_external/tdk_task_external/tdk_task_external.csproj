@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{AFBD5EDE-E7B6-4FF5-9DBF-24AB8BBEF2AF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Toyota.Common.Task.External</RootNamespace>
+    <AssemblyName>Toyota.Common.Task.External</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ExternalBackgroundTask.cs" />
+    <Compile Include="ExternalBackgroundTaskExecutor.cs" />
+    <Compile Include="ExternalBackgroundTaskHistory.cs" />
+    <Compile Include="ExternalBackgroundTaskManager.cs" />
+    <Compile Include="ExternalBackgroundTaskModel.cs" />
+    <Compile Include="ExternalBackgroundTaskModelUtil.cs" />
+    <Compile Include="ExternalBackgroundTaskMonitor.cs" />
+    <Compile Include="ExternalBackgroundTaskQueue.cs" />
+    <Compile Include="ExternalBackgroundTaskRegistry.cs" />
+    <Compile Include="ExternalBackgroundTaskRuntime.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Queries\History_Remove.sql" />
+    <Content Include="Queries\History_RemoveAll.sql" />
+    <Content Include="Queries\History_RemoveByFunctionName.sql" />
+    <Content Include="Queries\History_RemoveByName.sql" />
+    <Content Include="Queries\History_RemoveByType.sql" />
+    <Content Include="Queries\History_Select.sql" />
+    <Content Include="Queries\History_SelectByFunctionName.sql" />
+    <Content Include="Queries\History_SelectById.sql" />
+    <Content Include="Queries\History_SelectByName.sql" />
+    <Content Include="Queries\History_SelectByRegIdAndStartTimeRange.sql" />
+    <Content Include="Queries\History_SelectByRegistryId.sql" />
+    <Content Include="Queries\History_SelectByType.sql" />
+    <Content Include="Queries\History_Submit.sql" />
+    <Content Include="Queries\Queue_CheckId.sql" />
+    <Content Include="Queries\Queue_RemoveAll.sql" />
+    <Content Include="Queries\Queue_RemoveByFunctionName.sql" />
+    <Content Include="Queries\Queue_RemoveById.sql" />
+    <Content Include="Queries\Queue_RemoveByName.sql" />
+    <Content Include="Queries\Queue_RemoveByStatus.sql" />
+    <Content Include="Queries\Queue_RemoveByType.sql" />
+    <Content Include="Queries\Queue_Select.sql" />
+    <Content Include="Queries\Queue_SelectByFunctionName.sql" />
+    <Content Include="Queries\Queue_SelectById.sql" />
+    <Content Include="Queries\Queue_SelectByName.sql" />
+    <Content Include="Queries\Queue_SelectByRegistryId.sql" />
+    <Content Include="Queries\Queue_SelectByStatus.sql" />
+    <Content Include="Queries\Queue_SelectByType.sql" />
+    <Content Include="Queries\Queue_Submit.sql" />
+    <Content Include="Queries\Queue_UpdateExecutionTime.sql" />
+    <Content Include="Queries\Queue_UpdateProgress.sql" />
+    <Content Include="Queries\Queue_UpdateStatus.sql" />
+    <Content Include="Queries\Registry_CheckId.sql" />
+    <Content Include="Queries\Registry_RemoveAll.sql" />
+    <Content Include="Queries\Registry_RemoveByFunctionName.sql" />
+    <Content Include="Queries\Registry_RemoveById.sql" />
+    <Content Include="Queries\Registry_RemoveByName.sql" />
+    <Content Include="Queries\Registry_RemoveByType.sql" />
+    <Content Include="Queries\Registry_Select.sql" />
+    <Content Include="Queries\Registry_SelectByFunctionName.sql" />
+    <Content Include="Queries\Registry_SelectById.sql" />
+    <Content Include="Queries\Registry_SelectByName.sql" />
+    <Content Include="Queries\Registry_SelectByType.sql" />
+    <Content Include="Queries\Registry_Submit.sql" />
+    <Content Include="Queries\Table_Create.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\credential\credential\credential\tdk_credential.csproj">
+      <Project>{AF044777-5F92-4B31-A14F-D6ECBDE25A0D}</Project>
+      <Name>tdk_credential</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\database\database\database\tdk_database.csproj">
+      <Project>{C1D4786B-AB75-40F0-8881-FE030DD03C68}</Project>
+      <Name>tdk_database</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\database\database_petapoco\database_petapoco\tdk_database_petapoco.csproj">
+      <Project>{B71EB3B1-BEF6-4CC2-B8CD-F936336E683B}</Project>
+      <Name>tdk_database_petapoco</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\logging\tdk_logging\tdk_logging\tdk_logging.csproj">
+      <Project>{63B042CE-4790-438D-A24E-4FD2CAEB1C47}</Project>
+      <Name>tdk_logging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tdk_task\tdk_task\tdk_task.csproj">
+      <Project>{073C1567-806F-4309-BFD7-B2E80D0C5072}</Project>
+      <Name>tdk_task</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

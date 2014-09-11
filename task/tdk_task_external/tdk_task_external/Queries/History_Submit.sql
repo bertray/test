@@ -1,0 +1,29 @@
+﻿INSERT INTO TB_R_BACKGROUND_TASK_HISTORY
+           ([ID]
+		   ,[REGISTRY_ID]
+           ,[NAME]
+           ,[DESCRIPTION]
+           ,[SUBMITTER]
+           ,[FUNCTION_NAME]
+           ,[PARAMETER]
+           ,[TYPE]
+           ,[STATUS]
+		   ,[COMMAND]
+		   ,[PROGRESS]
+		   ,[START_TIME]
+		   ,[FINISH_TIME])
+     VALUES
+           (@Id
+		   ,@RegistryId
+           ,@Name
+           ,@Description
+           ,@Submitter
+           ,@FunctionName
+           ,@Parameter
+           ,@Type
+           ,@Status
+		   ,@Command
+		   ,@Progress
+		   ,@StartTime
+		   ,@FinishTime)
+

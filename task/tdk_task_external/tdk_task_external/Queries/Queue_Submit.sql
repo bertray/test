@@ -1,0 +1,22 @@
+﻿INSERT INTO TB_R_BACKGROUND_TASK_QUEUE
+           ([ID]
+		   ,[REGISTRY_ID]
+           ,[NAME]
+           ,[DESCRIPTION]
+           ,[SUBMITTER]
+           ,[FUNCTION_NAME]
+           ,[PARAMETER]
+           ,[TYPE]
+           ,[STATUS]
+		   ,[COMMAND])
+     VALUES
+           (@Id
+		   ,@RegistryId
+           ,@Name
+           ,@Description
+           ,@Submitter
+           ,@FunctionName
+           ,@Parameter
+           ,@Type
+           ,@Status
+		   ,@Command)

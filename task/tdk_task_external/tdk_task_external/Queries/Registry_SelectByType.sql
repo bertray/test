@@ -1,0 +1,18 @@
+﻿SELECT [ID] as "Id"
+      ,[NAME] as "Name"
+      ,[DESCRIPTION] as "Description"
+      ,[SUBMITTER] as "SubmitterUsername"
+      ,[FUNCTION_NAME] as "FunctionName"
+      ,[PARAMETER] as "Parameter"
+      ,[TYPE] as "Type"
+      ,[STATUS] as "Status"
+	  ,[COMMAND] as "Command"
+	  ,[START_DATE] as "StartDateInTicks"
+	  ,[END_DATE] as "EndDateInTicks"
+	  ,[PERIODIC_TYPE] as "PeriodicTypeValue"
+	  ,[INTERVAL] as "Interval"
+	  ,[TIME] as "RangeTimeInTicks"
+	  ,[EXECUTION_DAYS] as "ExecutionDays"
+	  ,[EXECUTION_MONTHS] as "ExecutionMonths"
+  FROM [TB_R_BACKGROUND_TASK_REGISTRY]
+  WHERE [TYPE] = @Type

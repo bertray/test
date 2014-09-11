@@ -1,0 +1,4 @@
+﻿DELETE FROM [TB_R_BACKGROUND_TASK_HISTORY]
+      WHERE (ID = @Id) and (REGISTRY_ID = @RegistryId)
+
+

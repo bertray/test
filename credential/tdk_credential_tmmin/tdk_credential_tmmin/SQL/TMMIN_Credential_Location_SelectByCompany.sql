@@ -1,0 +1,4 @@
+﻿SELECT [COMPANY_ID]
+      ,[LOCATION] as "Name"
+  FROM [TB_M_LOCATION]
+  WHERE [COMPANY_ID] = @CompanyId

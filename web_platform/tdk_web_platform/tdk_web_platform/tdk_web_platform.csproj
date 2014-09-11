@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{53D277FE-E313-4072-9F6E-DDCDF5190F42}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Toyota.Common.Web.Platform</RootNamespace>
+    <AssemblyName>Toyota.Common.Web.Platform</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AjaxExtension\AjaxExtensionRegistry.cs" />
+    <Compile Include="AjaxExtension\IAjaxExtension.cs" />
+    <Compile Include="AjaxExtension\InputValidationAjaxExtension.cs" />
+    <Compile Include="AjaxExtension\TimestampInfoAjaxExtension.cs" />
+    <Compile Include="ApplicationSettings.cs" />
+    <Compile Include="Browser\BrowserAgent.cs" />
+    <Compile Include="Browser\BrowserSettings.cs" />
+    <Compile Include="Configuration\ApplicationConfigurationCabinet.cs" />
+    <Compile Include="Configuration\ConfigurationConstants.cs" />
+    <Compile Include="Configuration\Configurations.cs" />
+    <Compile Include="Configuration\DatabaseConfigurationConstants.cs" />
+    <Compile Include="Configuration\LocalizationConfigurationConstants.cs" />
+    <Compile Include="Configuration\SystemConfigurationConstants.cs" />
+    <Compile Include="Constants\GlobalConstants.cs" />
+    <Compile Include="Constants\LocationConstants.cs" />
+    <Compile Include="Constants\RequestParameterConstants.cs" />
+    <Compile Include="Database\DatabaseManager.cs" />
+    <Compile Include="DataExchange\DataExchangeTerminal.cs" />
+    <Compile Include="DataUpload\DataUploadConfigurationConstants.cs" />
+    <Compile Include="DataUpload\DataUploadSettings.cs" />
+    <Compile Include="DeploymentContextSettings.cs" />
+    <Compile Include="DeploymentSettings.cs" />
+    <Compile Include="DevelopmentSettings.cs" />
+    <Compile Include="DevelopmentStage.cs" />
+    <Compile Include="Extension\WebExtension.cs" />
+    <Compile Include="ForgotPasswordPageController.cs" />
+    <Compile Include="InputValidation\EmptyStringInputValidator.cs" />
+    <Compile Include="InputValidation\IInputValidator.cs" />
+    <Compile Include="InputValidation\InputValidationResult.cs" />
+    <Compile Include="InputValidation\InputValidatorRegistry.cs" />
+    <Compile Include="Localization\ILocalizedWordCollection.cs" />
+    <Compile Include="Localization\TextFileLocalizedCollection.cs" />
+    <Compile Include="Logging\LogManager.cs" />
+    <Compile Include="Logging\LogSession.cs" />
+    <Compile Include="Logging\LogSettings.cs" />
+    <Compile Include="LoginPageController.cs" />
+    <Compile Include="Menu\IMenuProvider.cs" />
+    <Compile Include="Menu\Menu.cs" />
+    <Compile Include="Menu\MenuList.cs" />
+    <Compile Include="Menu\MenuSeparator.cs" />
+    <Compile Include="Menu\MenuSettings.cs" />
+    <Compile Include="Menu\XmlFileMenuProvider.cs" />
+    <Compile Include="Messaging\ApplicationMessageBus.cs" />
+    <Compile Include="Messaging\ScreenMessage.cs" />
+    <Compile Include="Messaging\ScreenMessageAjaxExtension.cs" />
+    <Compile Include="Messaging\ScreenMessagePool.cs" />
+    <Compile Include="Messaging\ScreenMessageSeverity.cs" />
+    <Compile Include="Messaging\ScreenMessageSubmissionAjaxExtension.cs" />
+    <Compile Include="Messaging\ScreenMessageUtil.cs" />
+    <Compile Include="ObjectPool.cs" />
+    <Compile Include="PageController.cs" />
+    <Compile Include="PageDescriptor.cs" />
+    <Compile Include="PageSettings.cs" />
+    <Compile Include="Patrol\IPatrolTask.cs" />
+    <Compile Include="Patrol\Patrol.cs" />
+    <Compile Include="Patrol\PatrolParameter.cs" />
+    <Compile Include="Patrol\PatrolTask.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProviderRegistry.cs" />
+    <Compile Include="RazorExtension\ApplicationRazorExtension.cs" />
+    <Compile Include="RazorExtension\BaseRazorExtension.cs" />
+    <Compile Include="RazorExtension\PageRazorExtension.cs" />
+    <Compile Include="RazorExtension\PlatformRazorExtension.cs" />
+    <Compile Include="RazorExtension\RazorHelperExtension.cs" />
+    <Compile Include="RequestConsole\ConsoleController.cs" />
+    <Compile Include="RequestFilterAttribute.cs" />
+    <Compile Include="RuntimeMode.cs" />
+    <Compile Include="RuntimeSettings.cs" />
+    <Compile Include="SecuritySettings.cs" />
+    <Compile Include="Security\AES256EncryptionAgent.cs" />
+    <Compile Include="Security\AuthorizationRazorExtension.cs" />
+    <Compile Include="Security\IEncryptionAgent.cs" />
+    <Compile Include="Security\StandardAuthorizationFeatureQualifier.cs" />
+    <Compile Include="Security\StandardAuthorizationFeatures.cs" />
+    <Compile Include="Session\AuthenticationRuleState.cs" />
+    <Compile Include="Session\IAuthenticationRule.cs" />
+    <Compile Include="Session\LookupUpdateListener.cs" />
+    <Compile Include="Session\SessionAuthentication.cs" />
+    <Compile Include="Session\SessionConfigurationConstants.cs" />
+    <Compile Include="Session\SessionKeys.cs" />
+    <Compile Include="SSO\SingleSignOnAjaxExtension.cs" />
+    <Compile Include="Task\TaskManager.cs" />
+    <Compile Include="UI\Component\IJsPropertiesProvider.cs" />
+    <Compile Include="UI\Component\UICheckBox.cs" />
+    <Compile Include="UI\Component\UICheckBoxClientSideEvent.cs" />
+    <Compile Include="UI\Component\UICheckBoxSettings.cs" />
+    <Compile Include="UI\Component\UIClientSideEvent.cs" />
+    <Compile Include="UI\Component\UIColorType.cs" />
+    <Compile Include="UI\Component\UIComboBox.cs" />
+    <Compile Include="UI\Component\UIComboBoxClientSideEvent.cs" />
+    <Compile Include="UI\Component\UIComboBoxSettings.cs" />
+    <Compile Include="UI\Component\UIComboBoxType.cs" />
+    <Compile Include="UI\Component\UIComponent.cs" />
+    <Compile Include="UI\Component\UIComponentSettings.cs" />
+    <Compile Include="UI\Component\UIDataTable.cs" />
+    <Compile Include="UI\Component\UIDataTableClientSideEvent.cs" />
+    <Compile Include="UI\Component\UIDataTableColumn.cs" />
+    <Compile Include="UI\Component\UIDataTableSettings.cs" />
+    <Compile Include="UI\Component\UIHorizontalAlignment.cs" />
+    <Compile Include="UI\Component\UIJavascriptMapProperty.cs" />
+    <Compile Include="UI\Component\UIPaginator.cs" />
+    <Compile Include="UI\Component\UIPaginatorClientSideEvent.cs" />
+    <Compile Include="UI\Component\UIPaginatorSettings.cs" />
+    <Compile Include="UI\Component\UIRadio.cs" />
+    <Compile Include="UI\Component\UIRadioClientSideEvent.cs" />
+    <Compile Include="UI\Component\UIRadioSettings.cs" />
+    <Compile Include="UI\Component\UISummaryList.cs" />
+    <Compile Include="UI\Component\UISummaryListClientSideEvent.cs" />
+    <Compile Include="UI\Component\UISummaryListSettings.cs" />
+    <Compile Include="UI\Component\UIVerticalMenuSettings.cs" />
+    <Compile Include="UI\Layout\UILayout.cs" />
+    <Compile Include="UI\UIRazorExtension.cs" />
+    <Compile Include="UI\UserInterfaceSettings.cs" />
+    <Compile Include="Util\DefaultHtmlMimeTypeProvider.cs" />
+    <Compile Include="Util\GlobalSearchAjaxExtension.cs" />
+    <Compile Include="Util\GlobalSearchResult.cs" />
+    <Compile Include="Util\IGlobalSearch.cs" />
+    <Compile Include="Util\IHtmlMimeTypeProvider.cs" />
+    <Compile Include="Util\PlatformExtensions.cs" />
+    <Compile Include="Util\UtilitiesRazorExtension.cs" />
+    <Compile Include="WebApplication.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\broadcasting\broadcasting\broadcasting\tdk_broadcasting.csproj">
+      <Project>{2EAF5238-B7B3-4F55-AFEA-80128933FF51}</Project>
+      <Name>tdk_broadcasting</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\configuration\configuration\configuration\tdk_configuration.csproj">
+      <Project>{81861135-23EB-4426-9A21-280DE972FE7E}</Project>
+      <Name>tdk_configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\credential\credential\credential\tdk_credential.csproj">
+      <Project>{AF044777-5F92-4B31-A14F-D6ECBDE25A0D}</Project>
+      <Name>tdk_credential</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\credential\tdk_credential_sso\tdk_credential_sso\tdk_credential_sso.csproj">
+      <Project>{E53455C0-0C30-431D-B969-88FF80EF9A7E}</Project>
+      <Name>tdk_credential_sso</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\database\database\database\tdk_database.csproj">
+      <Project>{C1D4786B-AB75-40F0-8881-FE030DD03C68}</Project>
+      <Name>tdk_database</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\database\database_petapoco\database_petapoco\tdk_database_petapoco.csproj">
+      <Project>{B71EB3B1-BEF6-4CC2-B8CD-F936336E683B}</Project>
+      <Name>tdk_database_petapoco</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\data_exchange\tdk_data_exchange\tdk_data_exchange\tdk_data_exchange.csproj">
+      <Project>{FA348A89-EB41-4580-891B-15AC9B1A9247}</Project>
+      <Name>tdk_data_exchange</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\document\tdk_document\tdk_document\tdk_document.csproj">
+      <Project>{8A5C05CA-939A-4B5D-A203-A7F0319E3C65}</Project>
+      <Name>tdk_document</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\document\tdk_document_npoi\tdk_document_npoi\tdk_document_npoi.csproj">
+      <Project>{41E6F8D1-6199-4C84-B9B0-C372D9D1DF1A}</Project>
+      <Name>tdk_document_npoi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\logging\tdk_logging\tdk_logging\tdk_logging.csproj">
+      <Project>{63B042CE-4790-438D-A24E-4FD2CAEB1C47}</Project>
+      <Name>tdk_logging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\lookup\lookup\lookup\tdk_lookup.csproj">
+      <Project>{57BD8B6B-5804-4CED-B7B4-E1377151755F}</Project>
+      <Name>tdk_lookup</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\task\tdk_task\tdk_task\tdk_task.csproj">
+      <Project>{073C1567-806F-4309-BFD7-B2E80D0C5072}</Project>
+      <Name>tdk_task</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\utilities\utilities\utilities\tdk_utilities.csproj">
+      <Project>{50CF6622-4B2C-411F-878B-E87A67EF40F2}</Project>
+      <Name>tdk_utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,26 @@
+﻿///
+/// <author>lufty.abdillah@gmail.com</author>
+/// <summary>
+/// Toyota .Net Development Kit
+/// Copyright (c) Toyota Motor Manufacturing Indonesia, All Right Reserved.
+/// </summary>
+/// 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Toyota.Common.Web.Platform
+{
+    public class DeploymentContextSettings
+    {
+        public DeploymentContextSettings()
+        {
+            Name = string.Empty;
+            EmulateSecureProtocol = false;
+        }
+
+        public string Name { set; get; }
+        public bool EmulateSecureProtocol { set; get; }
+    }
+}

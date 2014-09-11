@@ -1,0 +1,5 @@
+﻿SELECT  UNIT_CODE AS Id,
+        POSITION_CODE AS Name ,
+		4 AS Type
+FROM    TB_M_USER_POSITION
+WHERE   USERNAME = @Username
