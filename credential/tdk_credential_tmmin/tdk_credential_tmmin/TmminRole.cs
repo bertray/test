@@ -16,6 +16,7 @@ namespace Toyota.Common.Credential.TMMIN
     {
         public UserSystem System { set; get; }
         public TmminArea Area { set; get; }
+        public string DivisionCode { set; get; }
 
         public string _SystemId
         {

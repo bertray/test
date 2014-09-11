@@ -376,7 +376,8 @@ namespace Toyota.Common.Credential.TMMIN
                                 Id = role.Id,
                                 Name = role.Name,
                                 SessionTimeout = role.SessionTimeout,
-                                System = role.System
+                                System = role.System,
+                                DivisionCode = authModel.DivisionCode
                             });
                         }
                     }

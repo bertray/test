@@ -5,5 +5,6 @@
 		where tSystem.SYSTEM_ID = tAuth.SYSTEM_ID
       ) as "_SystemId"
       ,tAuth.[ROLE_ID] as "RoleId"
-  FROM [TB_M_AUTHORIZATION] tAuth
+	  ,tAuth.DIVISION_CODE as "DivisionCode"
+  FROM [TB_M_USER_ASSIGNMENT] tAuth
   WHERE [USERNAME] = @Username

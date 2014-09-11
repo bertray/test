@@ -16,6 +16,7 @@ namespace Toyota.Common.Credential.TMMIN
     {
         public string RoleId { set; get; }
         public string Username { set; get; }
+        public string DivisionCode { set; get; }
         public UserSystem System { set; get; }        
 
         public string _SystemId
