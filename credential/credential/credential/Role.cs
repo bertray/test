@@ -16,7 +16,7 @@ namespace Toyota.Common.Credential
     {
         public Role()
         {
-            SessionTimeout = 2;
+            SessionTimeout = 30;
             Functions = new List<AuthorizationFunction>();
         }
 

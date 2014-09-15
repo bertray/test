@@ -14,8 +14,8 @@ namespace Toyota.Common.Generalist
 {
     public class PhoneNumber
     {
-        public PhoneNumber() : this(PhoneNumberCategory.Home, null) { }
-        public PhoneNumber(string number) : this(PhoneNumberCategory.Home, number) { }
+        public PhoneNumber() : this(PhoneNumberCategory.Work, null) { }
+        public PhoneNumber(string number) : this(PhoneNumberCategory.Work, number) { }
         public PhoneNumber(PhoneNumberCategory category, string number)
         {
             Category = category;

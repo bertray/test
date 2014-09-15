@@ -76,24 +76,30 @@ namespace Toyota.Common.Credential.TMMIN
         {
             if ((user != null) && (user is TmminUser))
             {
-                TmminUser tUser = (TmminUser)user;                
+                TmminUser tUser = (TmminUser)user;
+                if (tUser.RegistrationNumber.IsNullOrEmpty())
+                {
+                    tUser.RegistrationNumber = tUser.Id;
+                }
                 dynamic param = new ExpandoObject();
                 param.Username = tUser.Username;
                 param.RegistrationNumber = tUser.RegistrationNumber;
+                param.PersonalId = tUser.Id;
                 param.CompanyCode = !tUser.Company.IsNull() ? tUser.Company.Id : null;
                 param.Password = tUser.Password;
                 param.PasswordExpirationDate = SqlDateTime.MinValue;
-                if (!tUser.PasswordExpirationDate.IsNull())
+                if (!tUser.PasswordExpirationDate.IsNull() && (tUser.PasswordExpirationDate > DateTime.MinValue))
                 {
                     param.PasswordExpirationDate = tUser.PasswordExpirationDate;
                 }
                 param.AccountValidityDate = SqlDateTime.MinValue;
-                if (!tUser.AccountValidityDate.IsNull())
+                if (!tUser.AccountValidityDate.IsNull() && (tUser.AccountValidityDate > DateTime.MinValue))
                 {
                     param.AccountValidityDate = tUser.AccountValidityDate;
                 }
                 param.FirstName = tUser.FirstName;
                 param.LastName = tUser.LastName;
+                param.FullName = tUser.Name;
 
                 param.PhoneNumber = DBNull.Value;
                 param.ExtensionNumber = DBNull.Value;
@@ -156,8 +162,10 @@ namespace Toyota.Common.Credential.TMMIN
                 param.ActiveDirectoryFlag = tUser.InActiveDirectory;
                 param.Shift = tUser.Shift;
                 param.ActiveFlag = tUser.IsActive;
-
+                param.EmploymentStatus = !tUser.Employment.IsNull() ? tUser.Employment.Value : null;
+                
                 IDBContext db = _CreateDBContext();
+                db.BeginTransaction();
 
                 User existingUser = GetUser(param.Username);                
                 if (existingUser.IsNull())
@@ -165,12 +173,14 @@ namespace Toyota.Common.Credential.TMMIN
                     db.Execute("User_Insert", new { 
                         Username = param.Username
                        ,RegistrationNumber = param.RegistrationNumber
+                       ,PersonalId = param.PersonalId
                        ,CompanyCode = param.CompanyCode
                        ,Password = param.Password
                        ,PasswordExpirationDate = param.PasswordExpirationDate
                        ,AccountValidityDate = param.AccountValidityDate
                        ,FirstName = param.FirstName
                        ,LastName = param.LastName
+                       ,FullName = param.FullName
                        ,PhoneNumber = param.PhoneNumber
                        ,ExtensionNumber = param.ExtensionNumber
                        ,MobileNumber = param.MobileNumber
@@ -185,17 +195,20 @@ namespace Toyota.Common.Credential.TMMIN
                        ,ActiveDirectoryFlag = param.ActiveDirectoryFlag
                        ,Shift = param.Shift
                        ,ActiveFlag = param.ActiveFlag
+                       ,EmploymentStatus = param.EmploymentStatus
                     });                    
                 } else {
                      db.Execute("User_Update", new { 
                         Username = param.Username
                        ,RegistrationNumber = param.RegistrationNumber
+                       ,PersonalId = param.PersonalId
                        ,CompanyCode = param.CompanyCode
                        ,Password = param.Password
                        ,PasswordExpirationDate = param.PasswordExpirationDate
                        ,AccountValidityDate = param.AccountValidityDate
                        ,FirstName = param.FirstName
                        ,LastName = param.LastName
+                       ,FullName = param.FullName
                        ,PhoneNumber = param.PhoneNumber
                        ,ExtensionNumber = param.ExtensionNumber
                        ,MobileNumber = param.MobileNumber
@@ -210,9 +223,30 @@ namespace Toyota.Common.Credential.TMMIN
                        ,ActiveDirectoryFlag = param.ActiveDirectoryFlag
                        ,Shift = param.Shift
                        ,ActiveFlag = param.ActiveFlag
+                       ,EmploymentStatus = param.EmploymentStatus
                     });              
                 }
 
+                if (!tUser.Roles.IsNullOrEmpty())
+                {
+                    IList<Role> existingRoles;
+                    IList<UserSystem> existingSystems;
+                    IList<TmminArea> existingArea;
+                    foreach (Role role in tUser.Roles)
+                    {
+                        existingRoles = db.Fetch<Role>("Role_SelectById", new { Id = role.Id });
+                        if (existingRoles.IsNullOrEmpty())
+                        {
+
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+
+                db.CommitTransaction();
                 db.Close();
             }            
         } 
@@ -342,7 +376,7 @@ namespace Toyota.Common.Credential.TMMIN
         public void FetchAuthorization(User user)
         {
             IDBContext db = _CreateDBContext();
-            IList<AuthorizationModel> roleList = db.Fetch<AuthorizationModel>("TMMIN_Credential_Authorization_SelectByUsername", new { Username = user.Username });
+            IList<AuthorizationModel> roleList = db.Fetch<AuthorizationModel>("Authorization_SelectByUsername", new { Username = user.Username });
             if ((roleList != null) && (roleList.Count > 0))
             {
                 IDictionary<string, IList<TmminRole>> roleMasterMap = new Dictionary<string, IList<TmminRole>>();
@@ -360,7 +394,7 @@ namespace Toyota.Common.Credential.TMMIN
 
                     if (!roleMasterMap.ContainsKey(authModel.System.Id))
                     {
-                        roles = db.Fetch<TmminRole>("TMMIN_Credential_Role_SelectBySystem", new { SystemId = authModel.System.Id });
+                        roles = db.Fetch<TmminRole>("Role_SelectBySystem", new { SystemId = authModel.System.Id });
                         roleMasterMap.Add(authModel.System.Id, roles);
                     }
 
@@ -386,19 +420,19 @@ namespace Toyota.Common.Credential.TMMIN
                     {
                         foreach (TmminRole role in user.Roles)
                         {
-                            functions = db.Fetch<AuthorizationFunction>("TMMIN_Credential_Function_SelectByRoleId", new { RoleId = authModel.RoleId });
+                            functions = db.Fetch<AuthorizationFunction>("Function_SelectByRoleId", new { RoleId = authModel.RoleId });
                             if ((functions != null) && (functions.Count > 0))
                             {
                                 role.Functions = functions;
                                 foreach (AuthorizationFunction function in role.Functions)
                                 {
-                                    features = db.Fetch<AuthorizationFeature>("TMMIN_Credential_Feature_SelectByRoleId", new { RoleId = authModel.RoleId, FunctionId = function.Id });
+                                    features = db.Fetch<AuthorizationFeature>("Feature_SelectByRoleId", new { RoleId = authModel.RoleId, FunctionId = function.Id });
                                     if ((features != null) && (features.Count > 0))
                                     {
                                         function.Features = features;
                                         foreach (AuthorizationFeature feature in function.Features)
                                         {
-                                            qualifiers = db.Fetch<AuthorizationFeatureQualifier>("TMMIN_Credential_Qualifier_SelectByRoleId", new { RoleId = authModel.RoleId, FeatureId = feature.Id });
+                                            qualifiers = db.Fetch<AuthorizationFeatureQualifier>("Qualifier_SelectByRoleId", new { RoleId = authModel.RoleId, FeatureId = feature.Id });
                                             if ((qualifiers != null) && (qualifiers.Count > 0))
                                             {
                                                 feature.Qualifiers = qualifiers;
@@ -423,7 +457,7 @@ namespace Toyota.Common.Credential.TMMIN
         public void FetchOrganization(User user)
         {
             IDBContext db = _CreateDBContext();
-            IList<OrganizationStructure> userPosition = db.Fetch<OrganizationStructure>("TMMIN_Credential_Position_SelectByUsername", new { Username = user.Username });
+            IList<OrganizationStructure> userPosition = db.Fetch<OrganizationStructure>("Position_SelectByUsername", new { Username = user.Username });
             {
                 if ((userPosition != null) && (userPosition.Count > 0))
                 {
@@ -435,12 +469,12 @@ namespace Toyota.Common.Credential.TMMIN
                     foreach (OrganizationStructure position in userPosition)
                     {
                         sqlQueue = new Queue<string>();
-                        sqlQueue.Enqueue("TMMIN_Credential_Group_SelectByGroupCode");
-                        sqlQueue.Enqueue("TMMIN_Credential_Line_SelectByLineCode");
-                        sqlQueue.Enqueue("TMMIN_Credential_Section_SelectByUnitCode");
-                        sqlQueue.Enqueue("TMMIN_Credential_Department_SelectByDepartmentCode");
-                        sqlQueue.Enqueue("TMMIN_Credential_Directorate_SelectByDivisionCode");
-                        sqlQueue.Enqueue("TMMIN_Credential_Company_SelectByDirectorateCode");
+                        sqlQueue.Enqueue("Group_SelectByGroupCode");
+                        sqlQueue.Enqueue("Line_SelectByLineCode");
+                        sqlQueue.Enqueue("Section_SelectByUnitCode");
+                        sqlQueue.Enqueue("Department_SelectByDepartmentCode");
+                        sqlQueue.Enqueue("Directorate_SelectByDivisionCode");
+                        sqlQueue.Enqueue("Company_SelectByDirectorateCode");
 
                         bufferOrg = new List<OrganizationStructure>();
                         outPosition = position;
@@ -470,7 +504,7 @@ namespace Toyota.Common.Credential.TMMIN
             IDBContext db = _CreateDBContext();
 
             IDictionary<string, TMMINPlantOrganization> plantMap = new Dictionary<string, TMMINPlantOrganization>();
-            IList<Gentani> gentanis = db.Fetch<Gentani>("TMMIN_Credential_Gentani_SelectByUsername", new { Username = user.Username });
+            IList<Gentani> gentanis = db.Fetch<Gentani>("Gentani_SelectByUsername", new { Username = user.Username });
             if ((gentanis != null) && (gentanis.Count > 0))
             {
                 TMMINPlantOrganization plant;

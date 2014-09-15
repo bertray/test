@@ -1,10 +1,12 @@
 ﻿update tb_m_user set [REG_NO] = @RegistrationNumber
+					,[PERSONAL_ID] = @PersonalId
 					,[COMPANY_CODE] = @CompanyCode
 					,[PASSWORD] = @Password 						
 				    ,[PASSWORD_EXPIRATION_DATE] = @PasswordExpirationDate
 				    ,[ACCOUNT_VALIDITY_DATE] = @AccountValidityDate
 				    ,[FIRST_NAME] = @FirstName
 				    ,[LAST_NAME] = @LastName
+					,[FULL_NAME] = @FullName
 				    ,[PHONE_NO] = @PhoneNumber
 				    ,[EXT_NO] = @ExtensionNumber
 				    ,[MOBILE_NO] = @MobileNumber
@@ -21,4 +23,5 @@
 				    ,[CHANGED_DATE] = GETDATE()
 				    ,[SHIFT] = @Shift
 				    ,[ACTIVE_FLAG] = @ActiveFlag
+					,[EMPLOYMENT_STATUS] = @EmploymentStatus
 where username = @Username

@@ -1,12 +1,14 @@
 ﻿INSERT INTO [TB_M_USER]
            ([USERNAME]
            ,[REG_NO]
+		   ,[PERSONAL_ID]
            ,[COMPANY_CODE]
            ,[PASSWORD]
            ,[PASSWORD_EXPIRATION_DATE]
            ,[ACCOUNT_VALIDITY_DATE]
            ,[FIRST_NAME]
            ,[LAST_NAME]
+		   ,[FULL_NAME]
            ,[PHONE_NO]
            ,[EXT_NO]
            ,[MOBILE_NO]
@@ -25,16 +27,19 @@
            ,[ACTIVE_FLAG]
 		   ,[LOCK_FLAG]
 		   ,[NOTIFICATION_FLAG]
-		   ,[DELETED_FLAG])
+		   ,[DELETED_FLAG]
+		   ,[EMPLOYMENT_STATUS])
      VALUES
            (@Username
            ,@RegistrationNumber
+		   ,@PersonalId
            ,@CompanyCode
            ,@Password
            ,@PasswordExpirationDate
            ,@AccountValidityDate
            ,@FirstName
            ,@LastName
+		   ,@FullName
            ,@PhoneNumber
            ,@ExtensionNumber
            ,@MobileNumber
@@ -53,4 +58,5 @@
            ,@ActiveFlag
 		   ,0
 		   ,0
-		   ,0)
+		   ,0
+		   ,@EmploymentStatus)

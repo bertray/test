@@ -27,6 +27,7 @@ namespace Toyota.Common.Credential
             Plants = new List<PlantOrganization>();
             Organizations = new List<OrganizationStructure>();
             Gender = GenderCategory.Unknown;
+            Employment = EmploymentStatus.Contract;
 
             SessionTimeout = 20;
             LockTimeout = 5;
@@ -69,6 +70,7 @@ namespace Toyota.Common.Credential
         public IList<UserCostCenter> CostCenters { private set; get; }
         public IList<PlantOrganization> Plants { private set; get; }
         public IList<OrganizationStructure> Organizations { private set; get; }
+        public EmploymentStatus Employment { set; get; }
         
         public int? SessionTimeout { set; get; }
         public int? LockTimeout { set; get; }
@@ -96,7 +98,5 @@ namespace Toyota.Common.Credential
         }
         public DateTime AccountValidityDate { set; get; }
         public bool IsActive { set; get; }
-
-        public string Status { set; get; }
     }
 }
