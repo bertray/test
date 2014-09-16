@@ -370,6 +370,15 @@ namespace Toyota.Common.Credential.TMMIN
                                 }
                             }
                         }
+
+                        db.Execute("Authorization_Insert", new { 
+                            Username = tUser.Username,
+                            DivisionCode = string.Empty,
+                            RoleId = role.Id,
+                            SystemId = role.System.Id,
+                            CreatedBy = "system",
+                            CreatedDate = today
+                        });
                     }
                 }
 
