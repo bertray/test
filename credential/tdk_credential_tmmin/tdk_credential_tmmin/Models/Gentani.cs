@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Toyota.Common.Credential.TMMIN
 {
-    class Gentani
+    internal class Gentani
     {
         public string Key { get; set; }
         public string Username { get; set; }

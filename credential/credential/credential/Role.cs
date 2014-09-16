@@ -24,6 +24,40 @@ namespace Toyota.Common.Credential
         public string Name { set; get; }
         public string Description { set; get; }
         public int? SessionTimeout { set; get; }
+        public UserSystem System { set; get; }
         public IList<AuthorizationFunction> Functions { set; get; }
+
+        public string _SystemId
+        {
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    string[] fractions = value.Split(':');
+                    if ((fractions != null) && (fractions.Length >= 4))
+                    {
+                        System = new UserSystem()
+                        {
+                            Id = fractions[0],
+                            Name = fractions[1],
+                            Url = fractions[2],
+                            Description = fractions[3]
+                        };
+
+                        return;
+                    }
+                }
+                System = null;
+            }
+
+            get
+            {
+                if (System != null)
+                {
+                    return System.Id;
+                }
+                return null;
+            }
+        }
     }
 }

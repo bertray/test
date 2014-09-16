@@ -81,6 +81,7 @@ namespace Toyota.Common.Credential.TMMIN
                 {
                     tUser.RegistrationNumber = tUser.Id;
                 }
+                DateTime today = DateTime.Now;
                 dynamic param = new ExpandoObject();
                 param.Username = tUser.Username;
                 param.RegistrationNumber = tUser.RegistrationNumber;
@@ -229,19 +230,146 @@ namespace Toyota.Common.Credential.TMMIN
 
                 if (!tUser.Roles.IsNullOrEmpty())
                 {
-                    IList<Role> existingRoles;
-                    IList<UserSystem> existingSystems;
-                    IList<TmminArea> existingArea;
-                    foreach (Role role in tUser.Roles)
+                    IList<Role> _xroles;
+                    IList<UserSystem> _xsystems;
+                    IList<TmminArea> _xarea;
+                    IList<AuthorizationFunction> _xfunctions;
+                    IList<AuthorizationFeature> _xfeatures;
+                    IList<RoleFeatureModel> _xroleQualifiers;
+                    IList<RoleFunctionModel> _xroleFunctions;
+                    IList<RoleFeatureModel> _xroleFeatures;
+                    IList<FeatureQualifierModel> _xfeatureQualifiers;
+
+                    foreach (TmminRole role in tUser.Roles)
                     {
-                        existingRoles = db.Fetch<Role>("Role_SelectById", new { Id = role.Id });
-                        if (existingRoles.IsNullOrEmpty())
+                        _xsystems = db.Fetch<UserSystem>("System_SelectById", new { SystemId = role.System.Id });
+                        if (_xsystems.IsNullOrEmpty())
                         {
-
+                            db.Execute("System_Insert", new {
+                                Id = role.System.Id,
+                                Name = role.System.Name,
+                                Description = role.System.Description,
+                                Url = role.System.Url,
+                                CreatedBy = "system",
+                                CreatedDate = today
+                            });
                         }
-                        else
-                        {
 
+                        _xarea = db.Fetch<TmminArea>("Area_SelectById", new { Id = role.Area.Id });
+                        if (_xarea.IsNullOrEmpty())
+                        {
+                            db.Execute("Area_Insert", new {
+                                Id = role.Area.Id,
+                                Name = role.Area.Name,
+                                CreatedBy = "system",
+                                CreatedDate = today
+                            });
+                        }
+
+                        _xroles = db.Fetch<Role>("Role_SelectById", new { Id = role.Id });
+                        if (_xroles.IsNullOrEmpty())
+                        {
+                            db.Execute("Role_Insert", new {
+                                SystemId = role.System.Id,
+                                Id = role.Id,    
+                                Name = role.Name,
+                                Description = role.Description,
+                                AreaId = role.Area.Id,
+                                SessionTimeout = role.SessionTimeout,
+                                CreatedBy = "system",
+                                CreatedDate = today
+                            });
+                        }
+
+                        if (!role.Functions.IsNullOrEmpty())
+                        {
+                            foreach (AuthorizationFunction func in role.Functions)
+                            {
+                                _xfunctions = db.Fetch<AuthorizationFunction>("Function_SelectByIdAndSystem", new { FunctionId = func.Id, SystemId = role.System.Id });
+                                if (_xfunctions.IsNullOrEmpty())
+                                {
+                                    db.Execute("Function_Insert", new {
+                                        Id = func.Id,
+                                        SystemId = role.System.Id,
+                                        ModuleId = string.Empty,
+                                        Name = func.Name,
+                                        Description = func.Description,
+                                        CreatedBy = "system",
+                                        CreatedDate = today
+                                    });
+                                }
+
+                                _xroleFunctions = db.Fetch<RoleFunctionModel>("Role_Function_SelectByRoleId", new { RoleId = role.Id });
+                                if (_xroleFunctions.IsNullOrEmpty())
+                                {
+                                    db.Execute("Role_Function_Insert", new { 
+                                        RoleId = role.Id,
+                                        FunctionId = func.Id,
+                                        CreatedBy = "system",
+                                        CreatedDate = today
+                                    });
+                                }
+
+                                if (!func.Features.IsNullOrEmpty())
+                                {
+                                    foreach(AuthorizationFeature feat in func.Features) 
+                                    {
+                                        _xfeatures = db.Fetch<AuthorizationFeature>("Feature_SelectById", new { Id = feat.Id });
+                                        if (_xfeatures.IsNullOrEmpty())
+                                        {
+                                            db.Execute("Feature_Insert", new { 
+                                                Id = feat.Id,
+                                                Name = feat.Name,
+                                                CreatedBy = "system",
+                                                CreatedDate = today
+                                            });
+                                        }
+
+                                        _xroleFeatures = db.Fetch<RoleFeatureModel>("Role_Feature_SelectById", new {
+                                            RoleId = role.Id,
+                                            FunctionId = func.Id,
+                                            FeatureId = feat.Id
+                                        });
+                                        if (_xroleFeatures.IsNullOrEmpty())
+                                        {
+                                            db.Execute("Role_Feature_Insert", new
+                                            {
+                                                RoleId = role.Id,
+                                                FunctionId = func.Id,
+                                                FeatureId = feat.Id,
+                                                CreatedBy = "system",
+                                                CreatedDate = today
+                                            });
+                                        }
+
+                                        if (!feat.Qualifiers.IsNullOrEmpty())
+                                        {
+                                            foreach (AuthorizationFeatureQualifier qf in feat.Qualifiers)
+                                            {
+                                                _xroleQualifiers = db.Fetch<RoleFeatureModel>("Qualifier_SelectByKey", new { 
+                                                    RoleId = role.Id,
+                                                    FunctionId = func.Id,
+                                                    FeatureId = feat.Id,
+                                                    Key = qf.Key
+                                                });
+
+                                                if (_xroleQualifiers.IsNullOrEmpty())
+                                                {
+                                                    db.Execute("Qualifier_Insert", new {
+                                                        RoleId = role.Id,
+                                                        FunctionId = func.Id,
+                                                        FeatureId = feat.Id,
+                                                        Key = qf.Key,
+                                                        Qualifier = qf.Qualifier,
+                                                        CreatedBy = "system",
+                                                        CreatedDate = today
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }                                    
+                                }
+                            }
                         }
                     }
                 }
@@ -410,8 +538,8 @@ namespace Toyota.Common.Credential.TMMIN
                                 Id = role.Id,
                                 Name = role.Name,
                                 SessionTimeout = role.SessionTimeout,
-                                System = role.System,
-                                DivisionCode = authModel.DivisionCode
+                                System = role.System
+                                //DivisionCode = authModel.DivisionCode
                             });
                         }
                     }
@@ -420,7 +548,7 @@ namespace Toyota.Common.Credential.TMMIN
                     {
                         foreach (TmminRole role in user.Roles)
                         {
-                            functions = db.Fetch<AuthorizationFunction>("Function_SelectByRoleId", new { RoleId = authModel.RoleId });
+                            functions = db.Fetch<AuthorizationFunction>("Role_Function_SelectByRoleId", new { RoleId = authModel.RoleId });
                             if ((functions != null) && (functions.Count > 0))
                             {
                                 role.Functions = functions;

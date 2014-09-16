@@ -1,0 +1,13 @@
+SELECT [FUNCTION_KEY]
+      ,[FUNCTION_ID]
+      ,[SYSTEM_ID]
+      ,[MODULE_ID]
+      ,[FUNCTION_NAME]
+      ,[FUNCTION_DESCRIPTION]
+      ,[CREATED_BY]
+      ,[CREATED_DATE]
+      ,[CHANGED_BY]
+      ,[CHANGED_DATE]
+  FROM [TB_M_FUNCTION]
+  WHERE ([FUNCTION_ID] = @FunctionId) and ([SYSTEM_ID] = @SystemId)
+

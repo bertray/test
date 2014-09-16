@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Toyota.Common.Credential.TMMIN
 {
-    class AuthorizationModel
+    internal class AuthorizationModel
     {
         public string RoleId { set; get; }
         public string Username { set; get; }

@@ -1,0 +1,4 @@
+SELECT [FEATURE_ID] as "Id"
+      ,[FEATURE_NAME] as "Name"
+  FROM [TB_M_FEATURE]
+  WHERE [FEATURE_ID] = @Id
