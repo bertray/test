@@ -238,7 +238,6 @@ namespace Toyota.Common.Credential.TMMIN
                     IList<RoleFeatureModel> _xroleQualifiers;
                     IList<RoleFunctionModel> _xroleFunctions;
                     IList<RoleFeatureModel> _xroleFeatures;
-                    IList<FeatureQualifierModel> _xfeatureQualifiers;
 
                     foreach (TmminRole role in tUser.Roles)
                     {
