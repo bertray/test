@@ -233,12 +233,12 @@ namespace Toyota.Common.Credential.TMMIN
                     IList<Role> _xroles;
                     IList<UserSystem> _xsystems;
                     IList<TmminArea> _xarea;
+                    IList<AuthorizationModel> _xauthorizations;
                     IList<AuthorizationFunction> _xfunctions;
                     IList<AuthorizationFeature> _xfeatures;
                     IList<RoleFeatureModel> _xroleQualifiers;
-                    IList<RoleFunctionModel> _xroleFunctions;
                     IList<RoleFeatureModel> _xroleFeatures;
-
+                    
                     foreach (TmminRole role in tUser.Roles)
                     {
                         _xsystems = db.Fetch<UserSystem>("System_SelectById", new { SystemId = role.System.Id });
@@ -298,8 +298,8 @@ namespace Toyota.Common.Credential.TMMIN
                                     });
                                 }
 
-                                _xroleFunctions = db.Fetch<RoleFunctionModel>("Role_Function_SelectByRoleId", new { RoleId = role.Id });
-                                if (_xroleFunctions.IsNullOrEmpty())
+                                _xfunctions = db.Fetch<AuthorizationFunction>("Role_Function_SelectByFuncId", new { RoleId = role.Id, FunctionId = func.Id });
+                                if (_xfunctions.IsNullOrEmpty())
                                 {
                                     db.Execute("Role_Function_Insert", new { 
                                         RoleId = role.Id,
@@ -371,14 +371,23 @@ namespace Toyota.Common.Credential.TMMIN
                             }
                         }
 
-                        db.Execute("Authorization_Insert", new { 
+                        _xauthorizations = db.Fetch<AuthorizationModel>("Authorization_SelectById", new {
                             Username = tUser.Username,
-                            DivisionCode = string.Empty,
                             RoleId = role.Id,
-                            SystemId = role.System.Id,
-                            CreatedBy = "system",
-                            CreatedDate = today
+                            SystemId = role.System.Id
                         });
+                        if (_xauthorizations.IsNullOrEmpty())
+                        {
+                            db.Execute("Authorization_Insert", new
+                            {
+                                Username = tUser.Username,
+                                DivisionCode = string.Empty,
+                                RoleId = role.Id,
+                                SystemId = role.System.Id,
+                                CreatedBy = "system",
+                                CreatedDate = today
+                            });
+                        }
                     }
                 }
 
@@ -513,7 +522,7 @@ namespace Toyota.Common.Credential.TMMIN
         {
             IDBContext db = _CreateDBContext();
             IList<AuthorizationModel> roleList = db.Fetch<AuthorizationModel>("Authorization_SelectByUsername", new { Username = user.Username });
-            if ((roleList != null) && (roleList.Count > 0))
+            if (!roleList.IsNullOrEmpty())
             {
                 IDictionary<string, IList<TmminRole>> roleMasterMap = new Dictionary<string, IList<TmminRole>>();
 
@@ -530,8 +539,7 @@ namespace Toyota.Common.Credential.TMMIN
 
                     if (!roleMasterMap.ContainsKey(authModel.System.Id))
                     {
-                        roles = db.Fetch<TmminRole>("Role_SelectBySystem", new { SystemId = authModel.System.Id });
-                        roleMasterMap.Add(authModel.System.Id, roles);
+                        roleMasterMap.Add(authModel.System.Id, db.Fetch<TmminRole>("Role_SelectBySystem", new { SystemId = authModel.System.Id }));
                     }
 
                     roles = roleMasterMap[authModel.System.Id];
@@ -552,23 +560,23 @@ namespace Toyota.Common.Credential.TMMIN
                         }
                     }
 
-                    if ((user.Roles != null) && (user.Roles.Count > 0))
+                    if (!user.Roles.IsNullOrEmpty())
                     {
                         foreach (TmminRole role in user.Roles)
                         {
-                            functions = db.Fetch<AuthorizationFunction>("Role_Function_SelectByRoleId", new { RoleId = authModel.RoleId });
-                            if ((functions != null) && (functions.Count > 0))
+                            functions = db.Fetch<AuthorizationFunction>("Role_Function_SelectById", new { RoleId = authModel.RoleId });
+                            if (!functions.IsNullOrEmpty())
                             {
                                 role.Functions = functions;
                                 foreach (AuthorizationFunction function in role.Functions)
                                 {
-                                    features = db.Fetch<AuthorizationFeature>("Feature_SelectByRoleId", new { RoleId = authModel.RoleId, FunctionId = function.Id });
+                                    features = db.Fetch<AuthorizationFeature>("Role_Feature_SelectById", new { RoleId = authModel.RoleId, FunctionId = function.Id });
                                     if ((features != null) && (features.Count > 0))
                                     {
                                         function.Features = features;
                                         foreach (AuthorizationFeature feature in function.Features)
                                         {
-                                            qualifiers = db.Fetch<AuthorizationFeatureQualifier>("Qualifier_SelectByRoleId", new { RoleId = authModel.RoleId, FeatureId = feature.Id });
+                                            qualifiers = db.Fetch<AuthorizationFeatureQualifier>("Qualifier_SelectById", new { RoleId = authModel.RoleId, FunctionId = function.Id, FeatureId = feature.Id });
                                             if ((qualifiers != null) && (qualifiers.Count > 0))
                                             {
                                                 feature.Qualifiers = qualifiers;

@@ -7,4 +7,6 @@
       ,tAuth.[ROLE_ID] as "RoleId"
 	  ,tAuth.DIVISION_CODE as "DivisionCode"
   FROM [TB_M_USER_ASSIGNMENT] tAuth
-  WHERE [USERNAME] = @Username
+  WHERE (tAuth.USERNAME = @Username)
+		and (tAuth.ROLE_ID = @RoleId)
+		and (tAuth.SYSTEM_ID = @SystemId)

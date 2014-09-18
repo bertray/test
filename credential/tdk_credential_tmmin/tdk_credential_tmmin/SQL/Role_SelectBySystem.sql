@@ -1,5 +1,5 @@
 ﻿SELECT (
-		select tSystem.SYSTEM_ID + ':' + tSystem.SYSTEM_NAME + ':' + tSystem.SYSTEM_URL + ':' + tSystem.SYSTEM_DESCRIPTION
+		select isnull(tSystem.SYSTEM_ID,'') + ':' + isnull(tSystem.SYSTEM_NAME,'') + ':' + isnull(tSystem.SYSTEM_URL,'') + ':' + isnull(tSystem.SYSTEM_DESCRIPTION,'')
 		from TB_M_SYSTEM tSystem
 		where tSystem.SYSTEM_ID = tRole.SYSTEM_ID
       ) as "_SystemId"

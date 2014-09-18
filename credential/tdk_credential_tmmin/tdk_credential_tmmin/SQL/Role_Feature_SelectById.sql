@@ -1,7 +1,6 @@
-SELECT [ROLE_ID] as "RoleId"
-      ,[FUNCTION_ID] as "FunctionId"
-      ,[FEATURE_ID] as "FeatureId"
-  FROM [TB_M_ROLE_FEATURE]
-  WHERE ([ROLE_ID] = @RoleId)
-		and ([FUNCTION_ID] = @FunctionId)
-		and ([FEATURE_ID] = @FeatureId)
+select 
+	b.feature_id as "Id",
+	b.feature_name as "Name"
+from tb_m_role_feature a
+inner join tb_m_feature b on a.feature_id = b.feature_id
+where (a.role_id = @RoleId) and (a.function_id = @FunctionId)
