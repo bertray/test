@@ -14,6 +14,7 @@ using Toyota.Common.Configuration;
 using System.IO;
 using System.Xml;
 using Toyota.Common.Utilities;
+using Toyota.Common.Credential;
 
 namespace Toyota.Common.Web.Platform
 {
@@ -157,11 +158,10 @@ namespace Toyota.Common.Web.Platform
                 Menu menu;
                 if (rootNode.HasChildNodes)
                 {
-                    ILocalizedWordCollection localization = ProviderRegistry.Instance.Get<ILocalizedWordCollection>();
                     foreach (XmlNode menuNode in rootNode.ChildNodes)
                     {
                         menu = CreateMenuFromNode(menuNode);
-                        menus.Add(menu);                        
+                        menus.Add(menu);                                                
                     }
                 }
             }
@@ -267,13 +267,96 @@ namespace Toyota.Common.Web.Platform
             }
 
             if (node.HasChildNodes)
-            {
+            {                
                 Menu submenu;
+                string name;
+                Role role;
+                AuthorizationFunction function;
+                AuthorizationFeature feature;
+                AuthorizationFeatureQualifier qualifier;
                 foreach (XmlNode submenuNode in node.ChildNodes)
                 {
-                    submenu = CreateMenuFromNode(submenuNode);
-                    submenu.Parent = menu;
-                    menu.AddChildren(submenu);
+                    name = submenuNode.Name;
+                    if (name.Equals("authorization") && submenuNode.HasChildNodes)
+                    {
+                        foreach (XmlNode roleNode in submenuNode.ChildNodes)
+                        {
+                            if (roleNode.Name.Equals("role"))
+                            {
+                                role = new Role();
+                                attribute = roleNode.Attributes["Id"];
+                                if (!attribute.IsNull())
+                                {
+                                    role.Id = attribute.Value;
+                                }
+
+                                if (roleNode.HasChildNodes)
+                                {
+                                    foreach (XmlNode funcNode in roleNode.ChildNodes)
+                                    {
+                                        if (funcNode.Name.Equals("function"))
+                                        {
+                                            function = new AuthorizationFunction();
+                                            attribute = funcNode.Attributes["Id"];
+                                            if (!attribute.IsNull())
+                                            {
+                                                function.Id = attribute.Value;
+                                            }
+
+                                            if (funcNode.HasChildNodes)
+                                            {
+                                                foreach (XmlNode featNode in funcNode.ChildNodes)
+                                                {
+                                                    if (featNode.Name.Equals("feature"))
+                                                    {
+                                                        feature = new AuthorizationFeature();
+                                                        attribute = featNode.Attributes["Id"];
+                                                        if (!attribute.IsNull())
+                                                        {
+                                                            feature.Id = attribute.Value;
+                                                        }
+
+                                                        if (featNode.HasChildNodes)
+                                                        {
+                                                            foreach (XmlNode qfNode in featNode.ChildNodes)
+                                                            {
+                                                                qualifier = new AuthorizationFeatureQualifier();
+                                                                attribute = qfNode.Attributes["Key"];
+                                                                if (!attribute.IsNull())
+                                                                {
+                                                                    qualifier.Key = attribute.Value;
+                                                                }
+                                                                attribute = qfNode.Attributes["Value"];
+                                                                if (!attribute.IsNull())
+                                                                {
+                                                                    qualifier.Qualifier = attribute.Value;
+
+                                                                }
+
+                                                                feature.Qualifiers.Add(qualifier);
+                                                            }
+                                                        }
+
+                                                        function.Features.Add(feature);
+                                                    }
+                                                }
+                                            }
+
+                                            role.Functions.Add(function);
+                                        }
+                                    }
+                                }
+
+                                menu.Roles.Add(role);
+                            }
+                        }
+                    }
+                    else if(name.Equals("menu-item"))
+                    {
+                        submenu = CreateMenuFromNode(submenuNode);
+                        submenu.Parent = menu;
+                        menu.AddChildren(submenu);
+                    }                    
                 }
             }
 
