@@ -155,6 +155,31 @@ namespace Toyota.Common.Utilities
         {
             return target.IteratedAddition(0, size, action);
         }
+        public static void FindAgainst<T>(this ICollection<T> target, ICollection<T> other, Func<T, T, bool> criteria, Action<T, T> foundAction)
+        {
+            if (!target.IsNullOrEmpty() && !other.IsNullOrEmpty())
+            {
+                bool passed;
+                foreach (T t in target)
+                {
+                    passed = false;
+                    foreach (T o in other)
+                    {
+                        passed = criteria.Invoke(t, o);
+                        if (passed)
+                        {
+                            foundAction(t, o);
+                            break;
+                        }
+                    }
+
+                    if (passed)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
 
         public static long Count(this IEnumerable target)
         {

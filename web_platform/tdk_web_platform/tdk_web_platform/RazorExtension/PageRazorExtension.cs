@@ -223,6 +223,142 @@ namespace Toyota.Common.Web.Platform
                 return null;
             }
         }
+        public MenuList AuthorizedMenu
+        {
+            get
+            {
+                MenuList menu = Menu;
+                User user = User;
+                if (!user.IsNull() && !menu.IsNull())
+                {
+                    MenuList authMenu = new MenuList();
+                    if (!user.Roles.IsNullOrEmpty())
+                    {
+                        bool authorized;
+                        foreach (Menu m in menu)
+                        {
+                            authorized = false;
+                            if (m.Roles.IsNullOrEmpty())
+                            {
+                                authorized = true;
+                            }
+                            else
+                            {
+                                foreach (Role role in user.Roles)
+                                {
+                                    authorized |= IsMenuAuthorized(m, role);
+                                }
+                                if (authorized)
+                                {
+                                    FilterAuthorizedMenuItem(m, user.Roles);
+                                }
+                            }
+                            
+                            if (authorized)
+                            {                                
+                                authMenu.Add(m);
+                            }
+                        }
+                    }
+                    return authMenu;
+                }
+                return menu;
+            }
+        }
+        private void FilterAuthorizedMenuItem(Menu parent, IList<Role> roles)
+        {
+            if (!parent.IsNull() && !roles.IsNullOrEmpty() && parent.HasChildren())
+            {
+                bool authorized;
+                IList<Menu> unauthorizeds = new List<Menu>();
+                foreach (Menu submenu in parent.Children)
+                {
+                    authorized = false;
+                    if (submenu.Roles.IsNullOrEmpty())
+                    {
+                        authorized = true;
+                    }
+                    else
+                    {
+                        foreach (Role r in roles)
+                        {
+                            authorized |= IsMenuAuthorized(submenu, r);
+                        }
+                    }
+                    
+                    if (authorized)
+                    {
+                        FilterAuthorizedMenuItem(submenu, roles);
+                    }
+                    else
+                    {
+                        unauthorizeds.Add(submenu);
+                    }
+                }
+
+                if (!unauthorizeds.IsNullOrEmpty())
+                {
+                    foreach (Menu _m in unauthorizeds)
+                    {
+                        parent.RemoveChildren(_m);
+                    }
+                }
+            }
+        }
+        private bool IsMenuAuthorized(Menu menu, Role role)
+        {
+            bool valid = false;
+            if (!menu.IsNull() && !role.IsNull())
+            {                
+                foreach (Role mrole in menu.Roles)
+                {
+                    if (role.Id.Equals(mrole.Id))
+                    {
+                        if (!mrole.Functions.IsNullOrEmpty() && !role.Functions.IsNullOrEmpty())
+                        {
+                            mrole.Functions.FindAgainst(role.Functions, (tfunc, ofunc) =>
+                            {
+                                return tfunc.Id.StringEquals(ofunc.Id);
+                            }, (tfunc, ofunc) =>
+                            {
+                                if (!tfunc.Features.IsNullOrEmpty() && !ofunc.Features.IsNullOrEmpty())
+                                {
+                                    tfunc.Features.FindAgainst(ofunc.Features, (tfeat, ofeat) =>
+                                    {
+                                        return tfeat.Id.StringEquals(ofeat.Id);
+                                    }, (tfeat, ofeat) =>
+                                    {
+                                        if (!tfeat.Qualifiers.IsNullOrEmpty() && !ofeat.Qualifiers.IsNullOrEmpty())
+                                        {
+                                            tfeat.Qualifiers.FindAgainst(ofeat.Qualifiers, (tq, oq) =>
+                                            {
+                                                return tq.Key.StringEquals(oq.Key) && tq.Qualifier.StringEquals(oq.Qualifier);
+                                            }, (tq, oq) =>
+                                            {
+                                                valid = valid | true;
+                                            });
+                                        }
+                                        else
+                                        {
+                                            valid = valid | true;
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    valid = valid | true;
+                                }
+                            });
+                        }
+                        else 
+                        {
+                            valid = valid | true;
+                        }
+                    }
+                }                
+            }
+            return valid;
+        }
         private dynamic BuildMenuItem(Menu menu)
         {
             dynamic jsMenu = new ExpandoObject();
