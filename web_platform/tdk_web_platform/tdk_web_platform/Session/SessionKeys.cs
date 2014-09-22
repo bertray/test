@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Toyota.Common.Web.Platform
 {
-    class SessionKeys
+    internal class SessionKeys
     {
         private SessionKeys() { }
 

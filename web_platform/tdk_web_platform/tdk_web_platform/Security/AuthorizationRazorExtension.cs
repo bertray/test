@@ -178,8 +178,6 @@ namespace Toyota.Common.Web.Platform
             }
             return null;
         }
-        
-        
 
         public HtmlHelper Helper { set; get; }
     }
