@@ -8,8 +8,8 @@
     <ProjectGuid>{FA348A89-EB41-4580-891B-15AC9B1A9247}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>tdk_data_exchange</RootNamespace>
-    <AssemblyName>tdk_data_exchange</AssemblyName>
+    <RootNamespace>Toyota.Common.DataExchange</RootNamespace>
+    <AssemblyName>Toyota.Common.DataExchange</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

@@ -30,7 +30,7 @@ namespace Toyota.Common.Credential
         public virtual LineOrganization GetLine(string id)
         {
             return Lines.FindElement(line => {
-                return line.Id.Equals(id) ? line : null;
+                return line.Id.Equals(id);
             });
         }
     }

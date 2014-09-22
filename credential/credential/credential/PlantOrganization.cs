@@ -30,7 +30,7 @@ namespace Toyota.Common.Credential
         public virtual ShopOrganization GetShop(string id)
         {
             return Shops.FindElement(shop => {
-                return shop.Id.Equals(id) ? shop : null;
+                return shop.Id.Equals(id);
             });
         }
     }

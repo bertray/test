@@ -30,7 +30,7 @@ namespace Toyota.Common.Credential
         public virtual ShiftOrganization GetShift(ShiftOrganizationType type)
         {
             return Shifts.FindElement(shift => {
-                return shift.Type == type ? shift : null;
+                return shift.Type == type;
             });
         }
     }

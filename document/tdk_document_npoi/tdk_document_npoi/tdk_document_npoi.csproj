@@ -8,8 +8,8 @@
     <ProjectGuid>{41E6F8D1-6199-4C84-B9B0-C372D9D1DF1A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>tdk_document_npoi</RootNamespace>
-    <AssemblyName>tdk_document_npoi</AssemblyName>
+    <RootNamespace>Toyota.Common.Document.NPOI</RootNamespace>
+    <AssemblyName>Toyota.Common.Document.NPOI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

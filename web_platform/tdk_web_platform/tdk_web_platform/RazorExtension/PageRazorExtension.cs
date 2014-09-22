@@ -229,38 +229,41 @@ namespace Toyota.Common.Web.Platform
             {
                 MenuList menu = Menu;
                 User user = User;
-                if (!user.IsNull() && !menu.IsNull())
+
+                if (user.IsNull())
+                {
+                    return menu;
+                }
+
+                if (!menu.IsNull() && !user.Roles.IsNullOrEmpty())
                 {
                     MenuList authMenu = new MenuList();
-                    if (!user.Roles.IsNullOrEmpty())
+                    bool authorized;
+                    foreach (Menu m in menu)
                     {
-                        bool authorized;
-                        foreach (Menu m in menu)
+                        authorized = false;
+                        if (m.Roles.IsNullOrEmpty())
                         {
-                            authorized = false;
-                            if (m.Roles.IsNullOrEmpty())
+                            authorized = true;
+                        }
+                        else
+                        {
+                            foreach (Role role in user.Roles)
                             {
-                                authorized = true;
+                                authorized |= IsMenuAuthorized(m, role);
                             }
-                            else
-                            {
-                                foreach (Role role in user.Roles)
-                                {
-                                    authorized |= IsMenuAuthorized(m, role);
-                                }
-                                if (authorized)
-                                {
-                                    FilterAuthorizedMenuItem(m, user.Roles);
-                                }
-                            }
-                            
                             if (authorized)
-                            {                                
-                                authMenu.Add(m);
+                            {
+                                FilterAuthorizedMenuItem(m, user.Roles);
                             }
                         }
+
+                        if (authorized)
+                        {
+                            authMenu.Add(m);
+                        }
                     }
-                    return authMenu;
+                    return authMenu;                  
                 }
                 return menu;
             }

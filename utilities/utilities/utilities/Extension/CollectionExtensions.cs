@@ -50,21 +50,21 @@ namespace Toyota.Common.Utilities
             }
             return found;
         }
-        public static T FindElement<T>(this ICollection<T> list, Func<T, T> function)
+        public static T FindElement<T>(this ICollection<T> list, Predicate<T> criteria)
         {
-            T found = default(T);
+            bool found = false;
             if (!list.IsNullOrEmpty())
-            {                
+            {   
                 foreach (T listItem in list)
                 {
-                    found = function.Invoke(listItem);
-                    if (!found.IsNull())
+                    found = criteria.Invoke(listItem);
+                    if (found)
                     {
-                        break;
+                        return listItem;
                     }
                 }
             }
-            return found;
+            return default(T);
         }
         public static ICollection<T> Merge<T>(this ICollection<T> target, ICollection<T> source)
         {

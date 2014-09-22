@@ -109,11 +109,7 @@ namespace Toyota.Common.Credential.TMMIN
                 {
                     PhoneNumber phoneNum = tUser.PhoneNumbers.FindElement<PhoneNumber>(num =>
                     {
-                        if (num.Category == PhoneNumberCategory.Work)
-                        {
-                            return num;
-                        }
-                        return null;
+                        return (num.Category == PhoneNumberCategory.Work);
                     });
                     if (!phoneNum.IsNull())
                     {
@@ -122,11 +118,7 @@ namespace Toyota.Common.Credential.TMMIN
 
                     phoneNum = tUser.PhoneNumbers.FindElement<PhoneNumber>(num =>
                     {
-                        if (num.Category == PhoneNumberCategory.Extension)
-                        {
-                            return num;
-                        }
-                        return null;
+                        return (num.Category == PhoneNumberCategory.Extension);
                     });
                     if (!phoneNum.IsNull())
                     {
@@ -135,11 +127,7 @@ namespace Toyota.Common.Credential.TMMIN
 
                     phoneNum = tUser.PhoneNumbers.FindElement<PhoneNumber>(num =>
                     {
-                        if (num.Category == PhoneNumberCategory.Mobile)
-                        {
-                            return num;
-                        }
-                        return null;
+                        return (num.Category == PhoneNumberCategory.Mobile);
                     });
                     if (!phoneNum.IsNull())
                     {
