@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using Toyota.Common.Credential;
+using Toyota.Common.Utilities;
 
 namespace Toyota.Common.Web.Platform
 {
@@ -82,6 +83,15 @@ namespace Toyota.Common.Web.Platform
             }
             return false;
         }
+        public bool IsAuthorizedToAccessQualifier(string functionId, string featureId, string key, string value)
+        {
+            if (IsAuthorizedToAccessFunction(functionId))
+            {
+                string q = GetFeatureQualifier(functionId, featureId, key);
+                return !string.IsNullOrEmpty(q) && q.Equals(value);
+            }
+            return false;
+        }
 
         public bool IsAuthorizedToAccessScreen()
         {
@@ -110,6 +120,15 @@ namespace Toyota.Common.Web.Platform
             }
             return false;
         }
+        public bool IsAuthorizedToAccessScreenQualifier(string featureId, string key, string value)
+        {
+            string screenId = Helper.Toyota().Page.ScreenID.ToHtmlString();
+            if (IsAuthorizedToAccessScreen())
+            {
+                return IsAuthorizedToAccessQualifier(screenId, featureId, key, value);
+            }
+            return false;
+        }
 
         public string GetFeatureQualifier(string functionId, string featureId, string key)
         {
@@ -118,7 +137,8 @@ namespace Toyota.Common.Web.Platform
             {
                 string loweredFunctionId = functionId.ToLower();
                 string loweredFeatureId = featureId.ToLower();
-                if (user.Roles != null)
+
+                if (!user.Roles.IsNullOrEmpty())
                 {
                     foreach (Role role in user.Roles)
                     {
