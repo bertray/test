@@ -125,6 +125,7 @@
     <Compile Include="Session\SessionConfigurationConstants.cs" />
     <Compile Include="Session\SessionKeys.cs" />
     <Compile Include="SSO\SingleSignOnAjaxExtension.cs" />
+    <Compile Include="SSO\SingleSignOnClient.cs" />
     <Compile Include="Task\TaskManager.cs" />
     <Compile Include="UI\Component\IJsPropertiesProvider.cs" />
     <Compile Include="UI\Component\UICheckBox.cs" />
@@ -179,10 +180,6 @@
       <Project>{AF044777-5F92-4B31-A14F-D6ECBDE25A0D}</Project>
       <Name>tdk_credential</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\credential\tdk_credential_sso\tdk_credential_sso\tdk_credential_sso.csproj">
-      <Project>{E53455C0-0C30-431D-B969-88FF80EF9A7E}</Project>
-      <Name>tdk_credential_sso</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\database\database\database\tdk_database.csproj">
       <Project>{C1D4786B-AB75-40F0-8881-FE030DD03C68}</Project>
       <Name>tdk_database</Name>
@@ -218,6 +215,10 @@
     <ProjectReference Include="..\..\..\utilities\utilities\utilities\tdk_utilities.csproj">
       <Project>{50CF6622-4B2C-411F-878B-E87A67EF40F2}</Project>
       <Name>tdk_utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\web_service\tdk_web_service\tdk_web_service\tdk_web_service.csproj">
+      <Project>{FFE4FE65-8F00-4412-9FE7-6B07DE427890}</Project>
+      <Name>tdk_web_service</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

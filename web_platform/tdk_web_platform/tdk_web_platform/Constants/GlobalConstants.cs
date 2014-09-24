@@ -13,7 +13,7 @@ using Toyota.Common.Configuration;
 
 namespace Toyota.Common.Web.Platform
 {
-    class GlobalConstants
+    internal class GlobalConstants
     {
         private GlobalConstants() 
         {

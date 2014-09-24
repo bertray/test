@@ -24,7 +24,6 @@ using Toyota.Common.Document.NPOI;
 using System.Threading;
 using Toyota.Common.Credential;
 using Toyota.Common.Utilities;
-using Toyota.Common.Credential.SingleSignOn;
 
 namespace Toyota.Common.Web.Platform
 {
@@ -365,6 +364,22 @@ namespace Toyota.Common.Web.Platform
             binder.Load();
             binder.Save();
 
+            binder = ApplicationConfigurationCabinet.Instance.GetBinder(GlobalConstants.Instance.CONFIGURATION_SINGLE_SIGN_ON_BINDER);
+            binder.Load();
+            config = binder.GetConfiguration(GlobalConstants.Instance.CONFIGURATION_SINGLE_SIGN_ON_URL);
+            if (config == null)
+            {
+                config = new ConfigurationItem()
+                {
+                    Key = GlobalConstants.Instance.CONFIGURATION_SINGLE_SIGN_ON_URL,
+                    Value = "url-to-single-sign-on-service",
+                    Description = "Url of Single Sign On Service"
+                };
+                binder.AddConfiguration(config);
+            }
+            ApplicationSettings.Instance.Security.SingleSignOnServiceUrl = config.Value;
+            binder.Save();
+
             /*
              * Volatile configurations
              */ 
@@ -407,31 +422,13 @@ namespace Toyota.Common.Web.Platform
         }
         private void InitSecurity()
         {
-            ProviderRegistry.Instance.Register<IEncryptionAgent>(typeof(AES256EncryptionAgent));
+            //ProviderRegistry.Instance.Register<IEncryptionAgent>(typeof(AES256EncryptionAgent));
         }
 
-        protected void ActivateSingleSignOn()
-        {
-            IConfigurationBinder binder = ApplicationConfigurationCabinet.Instance.GetBinder(GlobalConstants.Instance.CONFIGURATION_SINGLE_SIGN_ON_BINDER);
-            ConfigurationItem item = binder.GetConfiguration(GlobalConstants.Instance.CONFIGURATION_SINGLE_SIGN_ON_URL);
-            if (item == null)
-            {
-                item = new ConfigurationItem()
-                {
-                    Key = GlobalConstants.Instance.CONFIGURATION_SINGLE_SIGN_ON_URL,
-                    Value = "url-to-single-sign-on-service",
-                    Description = "Url of Single Sign On Service"
-                };
-                binder.AddConfiguration(item);
-            }
-            binder.Save();
-            binder.Load();
-
-            ApplicationSettings.Instance.Security.EnableSingleSignOn = true;
-            ProviderRegistry.Instance.Remove<IUserProvider>();
-            ProviderRegistry.Instance.Register<IUserProvider>(typeof(SingleSignOnUserProvider), Configurations.Instance.SingleSignOn_Url);
-            ProviderRegistry.Instance.Register<ISessionProvider>(typeof(SingleSignOnSessionProvider), Configurations.Instance.SingleSignOn_Url);
-            AjaxExtensionRegistry.Instance.Add(new SingleSignOnAjaxExtension());
-        }
+        //protected void ActivateSingleSignOn()
+        //{
+        //    ApplicationSettings.Instance.Security.EnableSingleSignOn = true;
+        //    //AjaxExtensionRegistry.Instance.Add(new SingleSignOnAjaxExtension());
+        //}
     }
 }

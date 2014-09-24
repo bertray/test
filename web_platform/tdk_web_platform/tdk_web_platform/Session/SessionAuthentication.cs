@@ -26,7 +26,7 @@ namespace Toyota.Common.Web.Platform
             this.screenID = screenID;
         }
 
-        private void CheckSingleSignOn(HttpContextBase httpContext)
+        private void _CheckSingleSignOn(HttpContextBase httpContext)
         {
             if (!ApplicationSettings.Instance.Security.EnableSingleSignOn || ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
             {
@@ -34,43 +34,43 @@ namespace Toyota.Common.Web.Platform
             }
             
             HttpSessionStateBase session = httpContext.Session;
-            ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
-            if (sessionProvider != null)
-            {
-                ILookup lookup = (ILookup)session[SessionKeys.LOOKUP];
-                UserSession userSession = lookup.Get<UserSession>();
-                if (userSession != null)
-                {
-                    userSession = sessionProvider.GetSession(userSession.Id);
-                    if (userSession != null)
-                    {
-                        TimeSpan elapsed = DateTime.Now.Subtract(userSession.LoginTime);
-                        IsValid = elapsed.Minutes < userSession.Timeout;
-                    }
-                }
-                else
-                {
-                    HttpCookie cookie = httpContext.Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
-                    if (cookie != null)
-                    {
-                        userSession = sessionProvider.GetSession(Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value)));
-                        IsValid = (userSession != null);
-                        if (IsValid)
-                        {
-                            IUserProvider userProvider = ProviderRegistry.Instance.Get<IUserProvider>();
-                            if (userProvider != null)
-                            {
-                                User user = userProvider.GetUser(userSession.Username);
-                                if (user != null)
-                                {
-                                    lookup.Add(user);
-                                    lookup.Add(userSession);
-                                }
-                            }
-                        }
-                    }                    
-                }
-            }
+            //ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
+            //if (sessionProvider != null)
+            //{
+            //    ILookup lookup = (ILookup)session[SessionKeys.LOOKUP];
+            //    UserSession userSession = lookup.Get<UserSession>();
+            //    if (userSession != null)
+            //    {
+            //        userSession = sessionProvider.GetSession(userSession.Id);
+            //        if (userSession != null)
+            //        {
+            //            TimeSpan elapsed = DateTime.Now.Subtract(userSession.LoginTime);
+            //            IsValid = elapsed.Minutes < userSession.Timeout;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        HttpCookie cookie = httpContext.Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+            //        if (cookie != null)
+            //        {
+            //            userSession = sessionProvider.GetSession(Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value)));
+            //            IsValid = (userSession != null);
+            //            if (IsValid)
+            //            {
+            //                IUserProvider userProvider = ProviderRegistry.Instance.Get<IUserProvider>();
+            //                if (userProvider != null)
+            //                {
+            //                    User user = userProvider.GetUser(userSession.Username);
+            //                    if (user != null)
+            //                    {
+            //                        lookup.Add(user);
+            //                        lookup.Add(userSession);
+            //                    }
+            //                }
+            //            }
+            //        }                    
+            //    }
+            //}
         }
 
         public void Authenticate(RequestContext requestContext)
@@ -86,7 +86,7 @@ namespace Toyota.Common.Web.Platform
             {
                 if (session.IsNewSession && !ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
                 {
-                    CheckSingleSignOn(httpContext);
+                    _CheckSingleSignOn(httpContext);
                     return;
                 }
                 
@@ -104,7 +104,7 @@ namespace Toyota.Common.Web.Platform
                         }
                     }
 
-                    CheckSingleSignOn(httpContext);
+                    _CheckSingleSignOn(httpContext);
 
                     bool loginControllerExecuted = ApplicationSettings.Instance.Security.LoginController.Equals(screenID);
                     bool forgotPasswordControllerExecuted = ApplicationSettings.Instance.Security.ForgotPasswordController.Equals(screenID);

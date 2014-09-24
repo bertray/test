@@ -31,5 +31,6 @@ namespace Toyota.Common.Web.Platform
         public bool SimulateAuthenticatedSession { set; get; }
         public User SimulatedAuthenticatedUser { set; get; }
         public bool UseCustomAuthenticationRule { set; get; }
+        public string SingleSignOnServiceUrl { set; get; }
     }
 }
