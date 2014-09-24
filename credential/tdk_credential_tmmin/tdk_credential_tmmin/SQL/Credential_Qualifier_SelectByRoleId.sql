@@ -1,6 +1,0 @@
-SELECT  b.DATA_KEY AS "Key" ,
-        b.QUALIFIER AS "Qualifier"
-FROM    TB_M_FEATURE a
-        INNER JOIN TB_M_FEATURE_QUALIFIER b ON b.FEATURE_ID = a.FEATURE_ID
-WHERE   b.ROLE_ID = @RoleId
-        AND a.FEATURE_ID = @FeatureId

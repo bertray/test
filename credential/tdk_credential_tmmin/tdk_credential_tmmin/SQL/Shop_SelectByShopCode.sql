@@ -1,6 +1,0 @@
-﻿SELECT  PLANT_CODE,
-		SHOP_CODE AS Id,
-        SHOP_NAME AS Name
-FROM    dbo.TB_M_PLANT_SHOP
-WHERE PLANT_CODE = @PlantCode
-	AND SHOP_CODE = @ShopCode
