@@ -15,7 +15,7 @@ namespace Toyota.Common.Web.Service
 {   
     [ServiceContract]
     public interface IWebService: IDisposable
-    {
+    {        
         [OperationContract]
         ServiceRuntimeResult Execute(ServiceRuntimeParameter parameter);
     }

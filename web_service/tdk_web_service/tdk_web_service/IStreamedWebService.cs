@@ -14,11 +14,9 @@ using System.IO;
 using System.ServiceModel.Activation;
 
 namespace Toyota.Common.Web.Service
-{
-    [ServiceContract]
+{    
     public interface IStreamedWebService: IDisposable
-    {
-        [OperationContract]
+    {        
         StreamedServiceRuntimeResult Execute(StreamedServiceRuntimeParameter parameter);
     }
 }

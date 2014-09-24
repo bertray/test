@@ -10,10 +10,6 @@
 ///     <summary>
 ///         ~ add code Fetch Organization, IterateOrganization
 ///         ~ add code IsUserAuthentic - Validate Credential AD
-///     </summary>   
-///     <author>yudha - yudha_hyp@yahoo.com (6-dec-2013)</date> 
-///     <summary>
-///         ~ add code Fetch Plant
 ///     </summary>    
 /// </modified>
 using System;

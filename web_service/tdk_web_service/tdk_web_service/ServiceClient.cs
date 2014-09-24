@@ -16,17 +16,17 @@ namespace Toyota.Common.Web.Service
 {
     public class ServiceClient: IDisposable
     {
-        public ServiceClient(IWebService client)
+        public ServiceClient(IWebService service)
         {
-            Client = client;
+            Service = service;
         }
 
-        public IWebService Client { set; get; }
+        public IWebService Service { set; get; }
         public virtual ServiceResult Execute(ServiceParameter parameter)
         {
-            if (!Client.IsNull() && !parameter.IsNull())
+            if (!Service.IsNull() && !parameter.IsNull())
             {
-                ServiceRuntimeResult runtimeResult = Client.Execute(parameter.ToRuntime());
+                ServiceRuntimeResult runtimeResult = Service.Execute(parameter.ToRuntime());
                 if (!runtimeResult.IsNull())
                 {
                     return ServiceResult.Create(runtimeResult);
@@ -37,9 +37,9 @@ namespace Toyota.Common.Web.Service
 
         public void Dispose()
         {
-            if (!Client.IsNull())
+            if (!Service.IsNull())
             {
-                ((IChannel)Client).Close();
+                ((IChannel)Service).Close();
             }
         }
     }

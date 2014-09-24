@@ -23,7 +23,7 @@ namespace Toyota.Common.Web.Service
         }
 
         protected ServiceCommandPool Commands { set; get; }
-
+                
         public virtual ServiceRuntimeResult Execute(ServiceRuntimeParameter parameter)
         {
             if(Commands != null) 
