@@ -24,37 +24,25 @@ namespace Toyota.Common.Web.Platform
         }
 
         public System.Web.Mvc.ActionResult Execute(System.Web.HttpRequestBase request, System.Web.HttpResponseBase response, System.Web.HttpSessionStateBase session)
-        {
+        {   
             ILookup lookup = session.Lookup();
-            ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
-
-            IDictionary<string, string> resultMap = new Dictionary<string, string>();
-            if (!sessionProvider.IsNull())
-            {
-                const string KEY_STATUS = "status";
-                const string KEY_LOCKED = "locked";
-                string task = request.Params["task"];
-                if (!string.IsNullOrEmpty(task))
+            User user = lookup.Get<User>();
+            string cmd = request.Params["command"];
+            if (!string.IsNullOrEmpty(cmd) && !user.IsNull())
+            {                
+                if (cmd.Equals("IsUserLocked"))
                 {
-
-                    if (task.Equals("state"))
-                    {
-                        resultMap.Add(KEY_STATUS, "inactive");
-                        UserSession loginSession = lookup.Get<UserSession>();
-                        loginSession = sessionProvider.GetSession(loginSession.Id);
-                        if (!loginSession.IsNull())
-                        {
-                            resultMap[KEY_STATUS] = "active";
-                        }
-                        else
-                        {
-                            resultMap.Add(KEY_LOCKED, Convert.ToString(loginSession.Locked).ToLower());
-                        }
-                    }
+                    bool locked = SSOClient.Instance.IsUserLocked(user.Username, user.Password);
+                    return new ContentResult() { Content = Convert.ToString(locked).ToLower() };
                 }
-            }            
+                else if (cmd.Equals("IsUserLoggedIn"))
+                {
+                    string id = SSOClient.Instance.IsUserLoggedIn(user.Username, user.Password);
+                    return new ContentResult() { Content = Convert.ToString(!string.IsNullOrEmpty(id)).ToLower() };
+                }
+            }
 
-            return new ContentResult() { Content = new MvcHtmlString(JSON.ToString<IDictionary<string, string>>(resultMap)).ToHtmlString() };
+            return new ContentResult() { Content = string.Empty };
         }
     }
 }

@@ -51,12 +51,12 @@ namespace Toyota.Common.Web.Platform
 
                     if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
                     {
-                        string id = SingleSignOnClient.Instance.IsUserLoggedIn(user.Username, user.Password);
+                        string id = SSOClient.Instance.IsUserLoggedIn(user.Username, user.Password);
                         if (!string.IsNullOrEmpty(id))
                         {
-                            SingleSignOnClient.Instance.Logout(user.Username, user.Password);
+                            SSOClient.Instance.Logout(user.Username, user.Password);
                         }
-                        SingleSignOnClient.Instance.Login(user.Username, user.Password);
+                        SSOClient.Instance.Login(user.Username, user.Password);
 
                         //ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
                         //if (sessionProvider != null)
@@ -113,7 +113,7 @@ namespace Toyota.Common.Web.Platform
                 Lookup.Remove<User>();
                 if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
                 {
-                    SingleSignOnClient.Instance.Logout(user.Username, user.Password);
+                    SSOClient.Instance.Logout(user.Username, user.Password);
                 }                
 
                 //ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();

@@ -223,10 +223,17 @@ namespace Toyota.Common.Web.Platform
                 return null;
             }
         }
+
+        private MenuList _authorizedMenu = null;
         public MenuList AuthorizedMenu
         {
             get
             {
+                if (!_authorizedMenu.IsNull())
+                {
+                    return _authorizedMenu;
+                }
+
                 MenuList menu = Menu;
                 User user = User;
 
@@ -237,7 +244,7 @@ namespace Toyota.Common.Web.Platform
 
                 if (!menu.IsNull())
                 {
-                    MenuList authMenu = new MenuList();
+                    _authorizedMenu = new MenuList();
                     bool authorized;
                     bool userHasRole = !user.Roles.IsNullOrEmpty();
                     foreach (Menu m in menu)
@@ -261,10 +268,10 @@ namespace Toyota.Common.Web.Platform
 
                         if (authorized)
                         {
-                            authMenu.Add(m);
+                            _authorizedMenu.Add(m);
                         }
                     }
-                    return authMenu;                  
+                    return _authorizedMenu;                  
                 }
                 return menu;
             }

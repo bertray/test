@@ -68,7 +68,6 @@
     <Compile Include="DeploymentSettings.cs" />
     <Compile Include="DevelopmentSettings.cs" />
     <Compile Include="DevelopmentStage.cs" />
-    <Compile Include="Extension\WebExtension.cs" />
     <Compile Include="ForgotPasswordPageController.cs" />
     <Compile Include="InputValidation\EmptyStringInputValidator.cs" />
     <Compile Include="InputValidation\IInputValidator.cs" />
@@ -124,8 +123,9 @@
     <Compile Include="Session\SessionAuthentication.cs" />
     <Compile Include="Session\SessionConfigurationConstants.cs" />
     <Compile Include="Session\SessionKeys.cs" />
+    <Compile Include="SSO\SSOSessionStorage.cs" />
     <Compile Include="SSO\SingleSignOnAjaxExtension.cs" />
-    <Compile Include="SSO\SingleSignOnClient.cs" />
+    <Compile Include="SSO\SSOClient.cs" />
     <Compile Include="Task\TaskManager.cs" />
     <Compile Include="UI\Component\IJsPropertiesProvider.cs" />
     <Compile Include="UI\Component\UICheckBox.cs" />

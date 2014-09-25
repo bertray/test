@@ -57,7 +57,7 @@ namespace Toyota.Common.Web.Platform
             InitMenu();
             InitRuntime();
             InitDataUpload();
-            InitSession();
+            InitSingleSignOn();
 
             logSession.WriteLine(new LoggingMessage("Executing startup sequence ..."));
             Startup();
@@ -80,21 +80,22 @@ namespace Toyota.Common.Web.Platform
         {
             ProviderRegistry.Instance.Register<IHtmlMimeTypeProvider>(typeof(DefaultHtmlMimeTypeProvider));
         }
-        private void InitSession()
-        {               
-            string path = ApplicationSettings.Instance.Deployment.HomeFolderLocation + Path.DirectorySeparatorChar + GlobalConstants.Instance.Configuration.Session.Name;
+        private void InitSingleSignOn()
+        {   
+            string path = Path.Combine(ApplicationSettings.Instance.Deployment.HomeFolderLocation, GlobalConstants.Instance.Configuration.Session.Name);
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
+            ApplicationSettings.Instance.Security.SSOSessionStoragePath = path;
 
-            IConfigurationBinder binder = new VolatileConfigurationBinder(GlobalConstants.Instance.Configuration.Session.Name);
-            binder.AddConfiguration(new ConfigurationItem() { 
-                Key = GlobalConstants.Instance.Configuration.Session.HomeFolder,
-                Value = path,
-                Description = "Session home folder"
-            });
-            ApplicationConfigurationCabinet.Instance.AddBinder(binder);
+            //IConfigurationBinder binder = new VolatileConfigurationBinder(GlobalConstants.Instance.Configuration.Session.Name);
+            //binder.AddConfiguration(new ConfigurationItem() { 
+            //    Key = GlobalConstants.Instance.Configuration.Session.HomeFolder,
+            //    Value = path,
+            //    Description = "Session home folder"
+            //});
+            //ApplicationConfigurationCabinet.Instance.AddBinder(binder);
         }
         private void InitDataUpload()
         {
@@ -212,12 +213,6 @@ namespace Toyota.Common.Web.Platform
                 Directory.CreateDirectory(path);
             }
 
-            path = ApplicationSettings.Instance.Deployment.HomeFolderLocation;
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-
             path = GlobalConstants.Instance.Location.SQLStatement;
             if (!Directory.Exists(path))
             {
@@ -225,20 +220,20 @@ namespace Toyota.Common.Web.Platform
             }
 
             /* Data Upload */
-            IConfigurationBinder binder = ApplicationConfigurationCabinet.Instance.GetBinder(GlobalConstants.Instance.Configuration.DataUpload.Name);
-            path = ApplicationSettings.Instance.Deployment.HomeFolderLocation + "\\" + binder.GetConfiguration(GlobalConstants.Instance.Configuration.DataUpload.RootFolder).Value;
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
+            //IConfigurationBinder binder = ApplicationConfigurationCabinet.Instance.GetBinder(GlobalConstants.Instance.Configuration.DataUpload.Name);
+            //path = ApplicationSettings.Instance.Deployment.HomeFolderLocation + "\\" + binder.GetConfiguration(GlobalConstants.Instance.Configuration.DataUpload.RootFolder).Value;
+            //if (!Directory.Exists(path))
+            //{
+            //    Directory.CreateDirectory(path);
+            //}
 
-            path = ApplicationSettings.Instance.Deployment.HomeFolderLocation + "\\" +
-                binder.GetConfiguration(GlobalConstants.Instance.Configuration.DataUpload.RootFolder).Value + "\\" +
-                binder.GetConfiguration(GlobalConstants.Instance.Configuration.DataUpload.ValidationResultFolder).Value;
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }            
+            //path = ApplicationSettings.Instance.Deployment.HomeFolderLocation + "\\" +
+            //    binder.GetConfiguration(GlobalConstants.Instance.Configuration.DataUpload.RootFolder).Value + "\\" +
+            //    binder.GetConfiguration(GlobalConstants.Instance.Configuration.DataUpload.ValidationResultFolder).Value;
+            //if (!Directory.Exists(path))
+            //{
+            //    Directory.CreateDirectory(path);
+            //}            
         }
         private void InitMenu()
         {
@@ -377,7 +372,7 @@ namespace Toyota.Common.Web.Platform
                 };
                 binder.AddConfiguration(config);
             }
-            ApplicationSettings.Instance.Security.SingleSignOnServiceUrl = config.Value;
+            ApplicationSettings.Instance.Security.SSOServiceUrl = config.Value;
             binder.Save();
 
             /*
@@ -423,6 +418,10 @@ namespace Toyota.Common.Web.Platform
         private void InitSecurity()
         {
             //ProviderRegistry.Instance.Register<IEncryptionAgent>(typeof(AES256EncryptionAgent));
+            if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
+            {
+                AjaxExtensionRegistry.Instance.Add(new SingleSignOnAjaxExtension());
+            }
         }
 
         //protected void ActivateSingleSignOn()

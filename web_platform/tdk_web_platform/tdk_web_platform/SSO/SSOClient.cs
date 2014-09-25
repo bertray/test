@@ -14,21 +14,21 @@ using Toyota.Common.Utilities;
 
 namespace Toyota.Common.Web.Platform
 {
-    public class SingleSignOnClient: IDisposable
+    public class SSOClient: IDisposable
     {
-        private SingleSignOnClient() 
+        private SSOClient() 
         {
-            ServiceFactory = new ServiceClientFactory<IWebService>(ApplicationSettings.Instance.Security.SingleSignOnServiceUrl);
+            ServiceFactory = new ServiceClientFactory<IWebService>(ApplicationSettings.Instance.Security.SSOServiceUrl);
         }
 
-        private static SingleSignOnClient instance = null;
-        public static SingleSignOnClient Instance
+        private static SSOClient instance = null;
+        public static SSOClient Instance
         {
             get
             {
                 if (instance.IsNull())
                 {
-                    instance = new SingleSignOnClient();
+                    instance = new SSOClient();
                 }
                 return instance;
             }

@@ -12,6 +12,8 @@ using System.Text;
 using System.Web.Mvc;
 using System.Reflection;
 using Toyota.Common.Utilities;
+using Toyota.Common.Lookup;
+using System.Web;
 
 namespace Toyota.Common.Web.Platform
 {
@@ -164,6 +166,15 @@ namespace Toyota.Common.Web.Platform
         public static void WriteLine(this HtmlHelper helper, string str)
         {
             WriteLine(helper, new MvcHtmlString(str));
+        }
+
+        public static ILookup Lookup(this HttpSessionStateBase session)
+        {
+            if (!session.IsNull())
+            {
+                return (ILookup)session[SessionKeys.LOOKUP];
+            }
+            return null;
         }
     }
 }
