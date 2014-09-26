@@ -119,13 +119,13 @@
     <Compile Include="Security\StandardAuthorizationFeatures.cs" />
     <Compile Include="Session\AuthenticationRuleState.cs" />
     <Compile Include="Session\IAuthenticationRule.cs" />
-    <Compile Include="Session\LookupUpdateListener.cs" />
     <Compile Include="Session\SessionAuthentication.cs" />
     <Compile Include="Session\SessionConfigurationConstants.cs" />
     <Compile Include="Session\SessionKeys.cs" />
     <Compile Include="SSO\SSOSessionStorage.cs" />
     <Compile Include="SSO\SingleSignOnAjaxExtension.cs" />
     <Compile Include="SSO\SSOClient.cs" />
+    <Compile Include="SSO\SessionPersistenceModel.cs" />
     <Compile Include="Task\TaskManager.cs" />
     <Compile Include="UI\Component\IJsPropertiesProvider.cs" />
     <Compile Include="UI\Component\UICheckBox.cs" />

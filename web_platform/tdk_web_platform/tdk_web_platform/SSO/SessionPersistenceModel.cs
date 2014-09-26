@@ -4,19 +4,20 @@
 /// Toyota .Net Development Kit
 /// Copyright (c) Toyota Motor Manufacturing Indonesia, All Right Reserved.
 /// </summary>
-///
+/// 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Toyota.Common.Lookup;
 
-namespace Toyota.Common.Credential
+namespace Toyota.Common.Web.Platform
 {
-    public class MaximumLoginReachedException: Exception
+    [Serializable]
+    internal class SessionPersistenceModel
     {
-        public MaximumLoginReachedException() : this("Maximum concurrent login reached.") { }
-        public MaximumLoginReachedException(string message): base(message)
-        {
-        }
+        public string Username { set; get; }
+        public string Password { set; get; }
+        public ILookup Data { set; get; }
     }
 }

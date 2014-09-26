@@ -13,12 +13,11 @@ using Toyota.Common.Utilities;
 using Toyota.Common.Generalist;
 
 namespace Toyota.Common.Credential
-{
+{    
     public class User
     {
         public User()
         {
-            Sessions = new List<UserSession>();
             PhoneNumbers = new List<PhoneNumber>();
             Emails = new List<string>();
             Roles = new List<Role>();
@@ -75,7 +74,6 @@ namespace Toyota.Common.Credential
         public int? SessionTimeout { set; get; }
         public int? LockTimeout { set; get; }
         public byte MaximumConcurrentLogin { set; get; }
-        public virtual IList<UserSession> Sessions { private set; get; }
         public IList<Role> Roles { private set; get; }
 
         public IList<UserSystem> Systems { set; get; }

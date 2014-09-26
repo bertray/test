@@ -56,33 +56,12 @@ namespace Toyota.Common.Web.Platform
                         {
                             SSOClient.Instance.Logout(user.Username, user.Password);
                         }
-                        SSOClient.Instance.Login(user.Username, user.Password);
-
-                        //ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
-                        //if (sessionProvider != null)
-                        //{
-                        //    UserSession session;
-                        //    IList<UserSession> sessions = sessionProvider.GetSessions(user);                            
-                        //    if (!sessions.IsNullOrEmpty())
-                        //    {
-                        //        session = sessions.First();
-                        //    }
-                        //    else
-                        //    {
-                        //        string location = Request.UserHostAddress + ";" + Request.LogonUserIdentity.Name;
-                        //        string agent = Request.UserAgent;
-                        //        string hostname = Request.UserHostName;
-
-                        //        session = sessionProvider.Login(user, location, agent);                                
-                        //    }
-
-                        //    Lookup.Add(session);
-                        //    string encryptedSessionId = HttpServerUtility.UrlTokenEncode(Encoding.UTF8.GetBytes(session.Id));
-                        //    string decryptedSessionId = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(encryptedSessionId));
-                        //    HttpCookie cookie = new HttpCookie(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID, encryptedSessionId);
-                        //    cookie.Expires = DateTime.Now.AddMinutes((int)user.SessionTimeout + 5);
-                        //    Response.Cookies.Add(cookie);
-                        //}
+                        id = SSOClient.Instance.Login(user.Username, user.Password);
+                        string encryptedId = HttpServerUtility.UrlTokenEncode(Encoding.UTF8.GetBytes(id));
+                        HttpCookie cookie = new HttpCookie(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID, encryptedId);
+                        cookie.Expires = DateTime.Now.AddMinutes((int)user.SessionTimeout);
+                        Response.Cookies.Add(cookie);
+                        SSOSessionStorage.Instance.Save(id, Lookup);
                     }                    
 
                     return new MvcHtmlString("true");
@@ -107,36 +86,35 @@ namespace Toyota.Common.Web.Platform
                 
         public MvcHtmlString AjaxLogout()
         {
-            User user = Lookup.Get<User>();               
+            User user = Lookup.Get<User>();
+            bool loggedOut = !user.IsNull();
             if (user != null)
             {
-                Lookup.Remove<User>();
+                Lookup.Remove<User>();                
                 if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
                 {
-                    SSOClient.Instance.Logout(user.Username, user.Password);
-                }                
+                    string id = null;
+                    if (Request.Cookies.AllKeys.Contains(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID))
+                    {
+                        HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+                        id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
+                        cookie.Value = null;
+                        cookie.Expires = DateTime.Now.AddDays(-1);
+                        Response.Cookies.Add(cookie);
+                    }
 
-                //ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
-                //if(sessionProvider != null) 
-                //{
-                //    UserSession session = Lookup.Get<UserSession>();
-                //    if (session != null)
-                //    {
-                //        sessionProvider.Logout(session.Id);
-                //        Lookup.Clear();
-                //    }                    
-                //}                
+                    if (SSOClient.Instance.Logout(user.Username, user.Password))
+                    {
+                        SSOSessionStorage.Instance.Delete(id);
+                    }
+                    else
+                    {
+                        loggedOut = false;
+                    }
+                }          
             }
 
-            //if (Request.Cookies.AllKeys.Contains(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID))
-            //{
-            //    HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
-            //    cookie.Expires = DateTime.Now.AddDays(-1);
-            //    Response.Cookies.Add(cookie);
-            //}
-
-            user = Lookup.Get<User>();
-            return new MvcHtmlString((user == null) ? "true" : "false");
+            return new MvcHtmlString(loggedOut ? "true" : "false");
         }
                 
         public ActionResult Logout()
@@ -150,75 +128,6 @@ namespace Toyota.Common.Web.Platform
             {
                 return Redirect(Descriptor.BaseUrl + "/" + ApplicationSettings.Instance.Security.LoginController);
             }
-        }
-
-        public MvcHtmlString IsLocked()
-        {
-            HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
-            if (cookie != null)
-            {
-                ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
-                if (sessionProvider != null)
-                {
-                    UserSession session = sessionProvider.GetSession(Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value)));
-                    if ((session != null) && session.Locked)
-                    {
-
-                        return new MvcHtmlString("true");
-                    }
-                }
-            }
-            return new MvcHtmlString("false");
-        }
-
-        public MvcHtmlString Unlock(string username, string password)
-        {
-            HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
-            if (cookie != null)
-            {
-                ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
-                if (sessionProvider != null)
-                {
-                    UserSession session = sessionProvider.GetSession(Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value)));
-                    if ((session != null) && session.Locked)
-                    {
-                        sessionProvider.Unlock(session.Id, username, password);
-                        session = sessionProvider.GetSession(Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value)));
-                        if (!session.Locked)
-                        {
-                            Lookup.Remove<UserSession>();
-                            Lookup.Add(session);
-                            return new MvcHtmlString("true");
-                        }                        
-                    }
-                }
-            }
-            return new MvcHtmlString("false");
-        }
-
-        public MvcHtmlString Lock()
-        {
-            HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
-            if (cookie != null)
-            {
-                ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
-                if (sessionProvider != null)
-                {
-                    UserSession session = sessionProvider.GetSession(Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value)));
-                    if ((session != null) && !session.Locked)
-                    {
-                        sessionProvider.Lock(session.Id);
-                        session = sessionProvider.GetSession(Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value)));
-                        if (session.Locked)
-                        {
-                            Lookup.Remove<UserSession>();
-                            Lookup.Add(session);
-                            return new MvcHtmlString("true");
-                        }
-                    }
-                }
-            }
-            return new MvcHtmlString("false");
         }
 
         protected override void Startup()

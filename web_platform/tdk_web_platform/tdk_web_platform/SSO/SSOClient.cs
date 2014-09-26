@@ -49,7 +49,7 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                if (result.Status == ServiceStatus.Success)
+                if (!result.IsNull() && (result.Status == ServiceStatus.Success))
                 {
                     return result.Data.Get<bool>("IsUserAuthentic");
                 }
@@ -58,8 +58,9 @@ namespace Toyota.Common.Web.Platform
             return false;
         }
 
-        public bool Login(string username, string password)
+        public string Login(string username, string password)
         {
+            string id = null;
             ServiceParameter param = new ServiceParameter().Define(p => {
                 p.Command = "Login";
                 p.Parameters.Add("username", username);
@@ -70,10 +71,13 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                return (result.Status == ServiceStatus.Success);
+                if (!result.IsNull() && (result.Status == ServiceStatus.Success))
+                {
+                    id = result.Data.Get<string>("Id");
+                }
             }
             service.Dispose();
-            return false;
+            return id;
         }
 
         public string IsUserLoggedIn(string username, string password)
@@ -90,7 +94,7 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                if (result.Status == ServiceStatus.Success)
+                if (!result.IsNull() && (result.Status == ServiceStatus.Success))
                 {
                     id = result.Data.Get<string>("Id");
                 }
@@ -112,7 +116,7 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                if (result.Status == ServiceStatus.Success)
+                if (!result.IsNull() &&(result.Status == ServiceStatus.Success))
                 {
                     return result.Data.Get<bool>("IsUserLocked");
                 }
@@ -134,7 +138,7 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                return (result.Status == ServiceStatus.Success);
+                return !result.IsNull() && (result.Status == ServiceStatus.Success);
             }
             service.Dispose();
             return false;
@@ -153,7 +157,7 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                return (result.Status == ServiceStatus.Success);
+                return !result.IsNull() && (result.Status == ServiceStatus.Success);
             }
             service.Dispose();
             return false;
@@ -172,7 +176,25 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                return (result.Status == ServiceStatus.Success);
+                return !result.IsNull() && (result.Status == ServiceStatus.Success);
+            }
+            service.Dispose();
+            return false;
+        }
+
+        public bool IsSessionAlive(string id)
+        {
+            ServiceParameter param = new ServiceParameter().Define(p =>
+            {
+                p.Command = "IsSessionAlive";
+                p.Parameters.Add("Id", id);
+            });
+            IWebService service = ServiceFactory.Create();
+            ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
+            if (!runtimeResult.IsNull())
+            {
+                ServiceResult result = ServiceResult.Create(runtimeResult);
+                return !result.IsNull() && (result.Status == ServiceStatus.Confirmed);
             }
             service.Dispose();
             return false;

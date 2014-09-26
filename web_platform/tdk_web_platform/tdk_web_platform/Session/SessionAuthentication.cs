@@ -20,20 +20,46 @@ namespace Toyota.Common.Web.Platform
     public class SessionAuthentication
     {
         private string screenID;
-        public SessionAuthentication(string screenID)
+        private PageDescriptor descriptor;
+        public SessionAuthentication(string screenID, PageDescriptor descriptor)
         {
             Enabled = true;
             this.screenID = screenID;
+            this.descriptor = descriptor;
         }
 
-        private void _CheckSingleSignOn(HttpContextBase httpContext)
+        private bool _CheckSingleSignOn(HttpContextBase httpContext)
         {
             if (!ApplicationSettings.Instance.Security.EnableSingleSignOn || ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
             {
-                return;
+                return false;
             }
             
             HttpSessionStateBase session = httpContext.Session;
+            ILookup lookup = session.Lookup();
+            User user = lookup.Get<User>();
+            if (user == null)
+            {
+                HttpCookie cookie = httpContext.Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+                if (cookie != null)
+                {
+                    string id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
+                    if (string.IsNullOrEmpty(id))
+                    {
+                        httpContext.Response.Redirect(string.Format("{0}/{1}/logout", descriptor.BaseUrl, ApplicationSettings.Instance.Security.LoginController));
+                        return false;
+                    }
+                    else
+                    {
+                        
+                    }
+                }                
+            }
+            else
+            {
+            }
+
+            return true;
             //ISessionProvider sessionProvider = ProviderRegistry.Instance.Get<ISessionProvider>();
             //if (sessionProvider != null)
             //{
@@ -84,11 +110,11 @@ namespace Toyota.Common.Web.Platform
 
             if (ApplicationSettings.Instance.Security.EnableAuthentication || ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
             {
-                if (session.IsNewSession && !ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
-                {
-                    _CheckSingleSignOn(httpContext);
-                    return;
-                }
+                //if (session.IsNewSession && !ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
+                //{
+                //    _CheckSingleSignOn(httpContext);
+                //    return;
+                //}
                 
                 if (Enabled)
                 {
@@ -104,7 +130,11 @@ namespace Toyota.Common.Web.Platform
                         }
                     }
 
-                    _CheckSingleSignOn(httpContext);
+                    if (!_CheckSingleSignOn(httpContext))
+                    {                        
+                        IsValid = false;
+                        return;
+                    }
 
                     bool loginControllerExecuted = ApplicationSettings.Instance.Security.LoginController.Equals(screenID);
                     bool forgotPasswordControllerExecuted = ApplicationSettings.Instance.Security.ForgotPasswordController.Equals(screenID);

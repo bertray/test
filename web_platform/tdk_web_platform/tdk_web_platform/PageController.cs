@@ -31,7 +31,7 @@ namespace Toyota.Common.Web.Platform
         {
             Settings = new PageSettings(GetType());
             Descriptor = new PageDescriptor();
-            Authentication = new SessionAuthentication(Settings.ScreenID);
+            Authentication = new SessionAuthentication(Settings.ScreenID, Descriptor);
             IgnoreStartup = false;
             PageState = PAGE_STATE_INIT;
         }
@@ -70,7 +70,6 @@ namespace Toyota.Common.Web.Platform
             if (session.IsNewSession)
             {
                 ILookup lookup = new SimpleLookup();
-                lookup.AddEventListener(new LookupUpdateListener());
                 session[SessionKeys.LOOKUP] = lookup;
                 session[SessionKeys.SCREEN_MESSAGE_POOL] = new ScreenMessagePool();
             }

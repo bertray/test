@@ -21,6 +21,7 @@ namespace Toyota.Common.Lookup
         void Remove<T>(Predicate<T> matchedCondition);
         T Get<T>();
         IList<T> GetAll<T>();
+        IList<object> GetAll();
 
         bool IsEventSuppressed { set; get; }
         void Clear();

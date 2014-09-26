@@ -179,5 +179,10 @@ namespace Toyota.Common.Lookup
         {
             lookupBag.Clear();
         }
+
+        public IList<object> GetAll()
+        {
+            return lookupBag;
+        }
     }
 }
