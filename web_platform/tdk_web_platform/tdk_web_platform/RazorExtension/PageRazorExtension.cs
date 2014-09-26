@@ -249,8 +249,8 @@ namespace Toyota.Common.Web.Platform
                     bool userHasRole = !user.Roles.IsNullOrEmpty();
                     foreach (Menu m in menu)
                     {
-                        authorized = false;
-                        if (m.Roles.IsNullOrEmpty())
+                        authorized = false;                        
+                        if (m.Roles.IsNullOrEmpty() && !m.IsRestricted)
                         {
                             authorized = true;
                         }
@@ -259,13 +259,9 @@ namespace Toyota.Common.Web.Platform
                             foreach (Role role in user.Roles)
                             {
                                 authorized |= IsMenuAuthorized(m, role);
-                            }
-                            if (authorized)
-                            {
-                                FilterAuthorizedMenuItem(m, user.Roles);
-                            }
+                            }                            
                         }
-
+                        authorized |= FilterAuthorizedMenuItem(m, user.Roles);
                         if (authorized)
                         {
                             _authorizedMenu.Add(m);
@@ -276,16 +272,22 @@ namespace Toyota.Common.Web.Platform
                 return menu;
             }
         }
-        private void FilterAuthorizedMenuItem(Menu parent, IList<Role> roles)
+        private bool FilterAuthorizedMenuItem(Menu parent, IList<Role> roles)
         {
             if (!parent.IsNull() && !roles.IsNullOrEmpty() && parent.HasChildren())
             {
                 bool authorized;
+                bool hasAuthorizedItem = false;
                 IList<Menu> unauthorizeds = new List<Menu>();
                 foreach (Menu submenu in parent.Children)
                 {
+                    if (parent.IsRestricted)
+                    {
+                        submenu.IsRestricted = parent.IsRestricted;
+                    }
+
                     authorized = false;
-                    if (submenu.Roles.IsNullOrEmpty())
+                    if (submenu.Roles.IsNullOrEmpty() && !parent.IsRestricted)
                     {
                         authorized = true;
                     }
@@ -296,12 +298,9 @@ namespace Toyota.Common.Web.Platform
                             authorized |= IsMenuAuthorized(submenu, r);
                         }
                     }
-                    
-                    if (authorized)
-                    {
-                        FilterAuthorizedMenuItem(submenu, roles);
-                    }
-                    else
+                    authorized |= FilterAuthorizedMenuItem(submenu, roles);
+                    hasAuthorizedItem |= authorized;
+                    if(!authorized)
                     {
                         unauthorizeds.Add(submenu);
                     }
@@ -314,11 +313,15 @@ namespace Toyota.Common.Web.Platform
                         parent.RemoveChildren(_m);
                     }
                 }
+
+                return hasAuthorizedItem;
             }
+
+            return false;
         }
         private bool IsMenuAuthorized(Menu menu, Role role)
         {
-            if (menu.Roles.IsNullOrEmpty())
+            if (menu.Roles.IsNullOrEmpty() && !menu.IsRestricted)
             {
                 return true;
             }

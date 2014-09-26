@@ -252,6 +252,11 @@ namespace Toyota.Common.Web.Platform
             {
                 menu.Glyph = attribute.Value;
             }
+            attribute = attributes["Restricted"];
+            if (attribute != null)
+            {
+                menu.IsRestricted = Convert.ToBoolean(attribute.Value.ToLower());
+            }
             attribute = attributes["Separator"];
             if ((attribute != null) && !string.IsNullOrEmpty(attribute.Value))
             {

@@ -179,6 +179,19 @@ namespace Toyota.Common.Web.Platform
             return null;
         }
 
+        public bool IsUserHasRole(string roleId)
+        {
+            if (!string.IsNullOrEmpty(roleId))
+            {
+                User user = Helper.Toyota().Page.User;
+                if (!user.IsNull() && !user.Roles.IsNullOrEmpty())
+                {
+                    return !user.Roles.FindElement(r => { return r.Id.Equals(roleId); }).IsNull();
+                }
+            }
+            return false;
+        }
+
         public HtmlHelper Helper { set; get; }
     }
 }

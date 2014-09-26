@@ -166,6 +166,7 @@ namespace Toyota.Common.Web.Platform
             get { return GetType().ToString(); }
         }
 
+        public bool IsRestricted { set; get; }
         public IList<Role> Roles { private set; get; }
     }
 }
