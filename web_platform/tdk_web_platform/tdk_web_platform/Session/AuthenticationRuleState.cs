@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Toyota.Common.Web.Platform
 {
-    public class AuthenticationRuleState
+    public class AuthorizationRuleState
     {
         public bool IsValid { set; get; }
         public bool IsAuthorized { set; get; }

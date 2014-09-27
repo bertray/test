@@ -14,7 +14,7 @@ using Toyota.Common.Lookup;
 namespace Toyota.Common.Web.Platform
 {
     [Serializable]
-    internal class SessionPersistenceModel
+    internal class SSOSessionPersistence
     {
         public string Username { set; get; }
         public string Password { set; get; }

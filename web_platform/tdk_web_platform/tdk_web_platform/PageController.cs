@@ -70,6 +70,7 @@ namespace Toyota.Common.Web.Platform
             if (session.IsNewSession)
             {
                 ILookup lookup = new SimpleLookup();
+                
                 session[SessionKeys.LOOKUP] = lookup;
                 session[SessionKeys.SCREEN_MESSAGE_POOL] = new ScreenMessagePool();
             }

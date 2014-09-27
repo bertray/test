@@ -15,8 +15,6 @@ namespace Toyota.Common.Lookup
     public enum LookupEventType
     {
         Instance_Added,
-        Instance_Removed,
-        Instance_Requested,
-        Instances_Requested
+        Instance_Removed
     }
 }

@@ -34,6 +34,21 @@ namespace Toyota.Common.Utilities
                 }
             }
         }
+        public static void IterateByAction<T>(this ICollection<T> list, Predicate<T> action)
+        {
+            if (!IsNullOrEmpty<T>(list))
+            {
+                bool keepLoop;
+                foreach (T listItem in list)
+                {
+                    keepLoop = action.Invoke(listItem);
+                    if (!keepLoop)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
         public static bool IsElementExists<T>(this ICollection<T> list, Func<T, bool> function)
         {
             bool found = false;

@@ -14,8 +14,8 @@ using System.Web.Routing;
 
 namespace Toyota.Common.Web.Platform
 {
-    public interface IAuthenticationRule
+    public interface IAuthorizationRule
     {
-        AuthenticationRuleState Authenticate(RequestContext requestContext);
+        AuthorizationRuleState Authorize(RequestContext requestContext);
     }
 }

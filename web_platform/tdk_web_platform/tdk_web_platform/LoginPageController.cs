@@ -59,9 +59,11 @@ namespace Toyota.Common.Web.Platform
                         id = SSOClient.Instance.Login(user.Username, user.Password);
                         string encryptedId = HttpServerUtility.UrlTokenEncode(Encoding.UTF8.GetBytes(id));
                         HttpCookie cookie = new HttpCookie(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID, encryptedId);
-                        cookie.Expires = DateTime.Now.AddMinutes((int)user.SessionTimeout);
+                        cookie.Expires = DateTime.Now.AddMinutes((int)user.SessionTimeout * 2);
                         Response.Cookies.Add(cookie);
                         SSOSessionStorage.Instance.Save(id, Lookup);
+                        SSOSessionLookupListener.RemoveExistingInstance(Lookup);
+                        Lookup.AddEventListener(new SSOSessionLookupListener(id));
                     }                    
 
                     return new MvcHtmlString("true");
@@ -86,6 +88,12 @@ namespace Toyota.Common.Web.Platform
                 
         public MvcHtmlString AjaxLogout()
         {
+            if (!ApplicationSettings.Instance.Security.EnableAuthentication ||
+                ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
+            {
+                return new MvcHtmlString("false");
+            }
+
             User user = Lookup.Get<User>();
             bool loggedOut = !user.IsNull();
             if (user != null)
@@ -119,6 +127,12 @@ namespace Toyota.Common.Web.Platform
                 
         public ActionResult Logout()
         {
+            if (!ApplicationSettings.Instance.Security.EnableAuthentication ||
+                ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
+            {
+                return null;
+            }
+
             MvcHtmlString feedback = AjaxLogout();
             if (feedback.ToHtmlString().Equals("false"))
             {
@@ -138,13 +152,10 @@ namespace Toyota.Common.Web.Platform
         private void _SaveAuthenticatedUser(User user)
         {
             Lookup.Add(user);
+            Session.Timeout = (int)user.SessionTimeout;
             if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
             {
-                Session.Timeout = 5;
-            }
-            else
-            {
-                Session.Timeout = (int) user.SessionTimeout;
+                Session.Timeout = 1;
             }
         }
     }

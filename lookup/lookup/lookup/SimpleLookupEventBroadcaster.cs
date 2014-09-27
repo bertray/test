@@ -52,11 +52,6 @@ namespace Toyota.Common.Lookup
 
         protected void BroadcastEvent(LookupEvent evt)
         {
-            if (evt.Broadcaster.IsEventSuppressed)
-            {
-                return;
-            }
-
             if (listeners.Count > 0)
             {
                 IList<ILookupEventListener> _listeners;
@@ -85,6 +80,16 @@ namespace Toyota.Common.Lookup
                     }
                 }
             }
-        }        
+        }
+
+        public IList<ILookupEventListener> GetListeners()
+        {
+            return listeners.AsReadOnly();
+        }
+
+        public IList<Action<LookupEvent>> GetActionListener()
+        {
+            return actions.AsReadOnly();
+        }
     }
 }

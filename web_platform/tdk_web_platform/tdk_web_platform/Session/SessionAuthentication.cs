@@ -11,9 +11,10 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Routing;
+using System.Web.Mvc;
 using Toyota.Common.Lookup;
 using Toyota.Common.Credential;
-using System.Web.Mvc;
+using Toyota.Common.Utilities;
 
 namespace Toyota.Common.Web.Platform
 {
@@ -103,103 +104,116 @@ namespace Toyota.Common.Web.Platform
         {
             HttpContextBase httpContext = requestContext.HttpContext;
             HttpSessionStateBase session = httpContext.Session;
-            ILookup lookup = (ILookup)session[SessionKeys.LOOKUP];
+            ILookup lookup = (ILookup)session.Lookup();
 
-            IsValid = false;
-            IsAuthorized = false;
-
-            if (ApplicationSettings.Instance.Security.EnableAuthentication || ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
+            if (!ApplicationSettings.Instance.Security.EnableAuthentication)
             {
-                //if (session.IsNewSession && !ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
-                //{
-                //    _CheckSingleSignOn(httpContext);
-                //    return;
-                //}
-                
-                if (Enabled)
+                IsValid = true;
+                IsAuthorized = false;
+                return;
+            }
+            if (ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
+            {
+                if (session.IsNewSession)
                 {
-                    if (ApplicationSettings.Instance.Security.UseCustomAuthenticationRule)
-                    {
-                        IAuthenticationRule rule = ProviderRegistry.Instance.Get<IAuthenticationRule>();
-                        if (rule != null)
-                        {
-                            AuthenticationRuleState resultState = rule.Authenticate(requestContext);
-                            IsAuthorized = resultState.IsAuthorized;
-                            IsValid = resultState.IsValid;
-                            return;
-                        }
-                    }
+                    lookup.Remove<User>();
+                    lookup.Add(ApplicationSettings.Instance.Security.SimulatedAuthenticatedUser);
+                }
+            }
+            if (!Enabled)
+            {
+                return;
+            }
 
-                    if (!_CheckSingleSignOn(httpContext))
-                    {                        
-                        IsValid = false;
-                        return;
-                    }
+            bool loginControllerExecuted = ApplicationSettings.Instance.Security.LoginController.Equals(screenID);
+            if (loginControllerExecuted)
+            {
+                IsValid = true;
+                IsAuthorized = true;
+                return;
+            }
 
-                    bool loginControllerExecuted = ApplicationSettings.Instance.Security.LoginController.Equals(screenID);
-                    bool forgotPasswordControllerExecuted = ApplicationSettings.Instance.Security.ForgotPasswordController.Equals(screenID);
-                    string unauthorizedController = ApplicationSettings.Instance.Security.UnauthorizedController;
-                    bool unauthorizedControllerExecuted = string.IsNullOrEmpty(unauthorizedController) ? false : unauthorizedController.Equals(screenID);
-                    bool homeControllerExecuted = ApplicationSettings.Instance.Runtime.HomeController.Equals(screenID);                    
-                    if (loginControllerExecuted || unauthorizedControllerExecuted || forgotPasswordControllerExecuted)
-                    {
-                        IsValid = true;
-                        IsAuthorized = true;
-                    }
-                    else
-                    {
-                        if (ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
-                        {
-                            lookup.Remove<User>();
-                            lookup.Add(ApplicationSettings.Instance.Security.SimulatedAuthenticatedUser);
-                        }
+            if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
+            {
+                HttpCookie cookie = httpContext.Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+                if (cookie.IsNull() || string.IsNullOrEmpty(cookie.Value))
+                {
+                    IsValid = false;
+                    IsAuthorized = false;
+                    return;
+                }
 
-                        User user = lookup.Get<User>();                        
-                        if (user != null)
-                        {
-                            IsValid = true;
-                            IsAuthorized = false;
-                            if (!string.IsNullOrEmpty(screenID) && (user.Roles != null) && (user.Roles.Count > 0))
-                            {
-                                if (homeControllerExecuted)
-                                {
-                                    IsAuthorized = true;
-                                }
-                                else
-                                {
-                                    foreach (Role role in user.Roles)
-                                    {
-                                        if (role.Functions != null)
-                                        {
-                                            foreach (AuthorizationFunction function in role.Functions)
-                                            {
-                                                if (screenID.Equals(function.Id, StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    IsAuthorized = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        if (IsAuthorized)
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }                                
-                            }
-                        }
-                    }                    
+                string id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
+                if (SSOClient.Instance.IsSessionAlive(id))
+                {
+                    ILookup persistedLookup = SSOSessionStorage.Instance.Load(id);
+                    session[SessionKeys.LOOKUP] = persistedLookup;
+                    SSOSessionLookupListener.RemoveExistingInstance(lookup);
+                    persistedLookup.AddEventListener(new SSOSessionLookupListener(id));
+                    lookup = persistedLookup;
                 }
                 else
                 {
-                    IsValid = true;
+                    SSOSessionStorage.Instance.Delete(id);
+                    cookie.Expires = DateTime.Now.AddDays(-1);
+                    httpContext.Response.Cookies.Add(cookie);
+                    IsValid = false;
+                    IsAuthorized = false;
+                    return;
                 }
             }
             else
             {
+                IsValid = false;
+                IsAuthorized = false;
+                return;
+            }       
+
+            User user = lookup.Get<User>();
+            if (user.IsNull())
+            {
+                IsValid = false;
+                IsAuthorized = false;
+                return;            
+            }
+            IsValid = true;
+
+            if (ApplicationSettings.Instance.Security.IgnoreAuthorization)
+            {
+                IsAuthorized = true;
+                return;
+            }
+            
+            bool forgotPasswordControllerExecuted = ApplicationSettings.Instance.Security.ForgotPasswordController.Equals(screenID);
+            bool unauthorizedControllerExecuted = string.IsNullOrEmpty(ApplicationSettings.Instance.Security.UnauthorizedController) ? false : ApplicationSettings.Instance.Security.UnauthorizedController.Equals(screenID);
+            bool homeControllerExecuted = ApplicationSettings.Instance.Runtime.HomeController.Equals(screenID);
+            if (unauthorizedControllerExecuted || forgotPasswordControllerExecuted || homeControllerExecuted)
+            {
                 IsValid = true;
                 IsAuthorized = true;
+                return;
+            }            
+
+            if (ApplicationSettings.Instance.Security.UseCustomAuthorizationRule)
+            {
+                IAuthorizationRule rule = ProviderRegistry.Instance.Get<IAuthorizationRule>();
+                if (rule != null)
+                {
+                    AuthorizationRuleState resultState = rule.Authorize(requestContext);
+                    IsAuthorized = resultState.IsAuthorized;
+                    IsValid = resultState.IsValid;
+                    return;
+                }
             }
+
+            AuthorizationFunction authFunc;
+            user.Roles.IterateByAction(role => {
+                authFunc = role.Functions.FindElement(func => {
+                    return screenID.Equals(func.Id, StringComparison.OrdinalIgnoreCase);
+                });
+                IsAuthorized = !authFunc.IsNull();
+                return !IsAuthorized;
+            });
         }
 
         public bool Enabled { set; get; }

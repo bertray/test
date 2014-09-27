@@ -64,26 +64,14 @@ namespace Toyota.Common.Lookup
             }
 
             Type type = typeof(T);
-            Object obj = null;
-            for (int i = lookupBag.Count - 1; i >= 0; i--)
+            foreach (Object obj in lookupBag)
             {
-                obj = lookupBag[i];
                 if (type.IsInstanceOfType(obj))
                 {
-                    break;
+                    return (T) obj;
                 }
-                else
-                {
-                }
-                obj = null;
             }
-
-            BroadcastEvent(new LookupEvent() { 
-                Type = LookupEventType.Instance_Requested,
-                Broadcaster = this,
-                Instance = obj
-            });
-            return (T)obj;
+            return default(T);
         }
                 
         public IList<T> GetAll<T>()
@@ -92,24 +80,16 @@ namespace Toyota.Common.Lookup
             {
                 return null;
             }
-
-            Object obj;
+                        
             Type type = typeof(T);
             List<T> lstResult = new List<T>();
-            for (int i = lookupBag.Count - 1; i >= 0; i--)
+            foreach (Object obj in lookupBag)
             {
-                obj = lookupBag[i];
                 if (type.IsInstanceOfType(obj))
                 {
                     lstResult.Add((T)obj);
                 }
             }
-
-            BroadcastEvent(new LookupEvent() { 
-                Broadcaster = this,
-                Instance = lstResult,
-                Type = LookupEventType.Instances_Requested
-            });
 
             if (lstResult.Count > 0)
             {
@@ -159,19 +139,6 @@ namespace Toyota.Common.Lookup
                 {
                     Remove(tObj);
                 }
-            }
-        }
-
-        private bool _isEventSuppressed = true;
-        public bool IsEventSuppressed
-        {
-            get
-            {
-                return _isEventSuppressed;
-            }
-            set
-            {
-                _isEventSuppressed = value;
             }
         }
 

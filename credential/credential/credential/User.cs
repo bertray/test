@@ -29,7 +29,7 @@ namespace Toyota.Common.Credential
             Employment = EmploymentStatus.Contract;
 
             SessionTimeout = 20;
-            LockTimeout = 5;
+            LockTimeout = 10;
             MaximumConcurrentLogin = 3;
         }
 

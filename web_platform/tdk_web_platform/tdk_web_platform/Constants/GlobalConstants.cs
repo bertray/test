@@ -33,7 +33,7 @@ namespace Toyota.Common.Web.Platform
 
         public string SECURITY_COOKIE_SESSIONID
         {
-            get { return "_tdk_ck_sessionId"; }
+            get { return "_tdk_session_id"; }
         }
         public string SECURITY_SALT_SESSION_ID
         {

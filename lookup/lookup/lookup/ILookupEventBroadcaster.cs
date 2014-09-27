@@ -18,5 +18,7 @@ namespace Toyota.Common.Lookup
         void RemoveEventListener(ILookupEventListener listener);
         void AddEventListener(Action<LookupEvent> action);
         void RemoveEventListener(Action<LookupEvent> action);
+        IList<ILookupEventListener> GetListeners();
+        IList<Action<LookupEvent>> GetActionListener();
     }
 }

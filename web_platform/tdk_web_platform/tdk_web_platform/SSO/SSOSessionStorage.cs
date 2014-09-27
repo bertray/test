@@ -56,7 +56,7 @@ namespace Toyota.Common.Web.Platform
                     }
                     plookup.Remove<User>();
 
-                    SessionPersistenceModel model = new SessionPersistenceModel();
+                    SSOSessionPersistence model = new SSOSessionPersistence();
                     model.Username = user.Username;
                     model.Password = user.Password;
                     model.Data = plookup;
@@ -79,7 +79,7 @@ namespace Toyota.Common.Web.Platform
                     
                     FileStream file = File.OpenRead(path);
                     BinaryFormatter formatter = new BinaryFormatter();
-                    SessionPersistenceModel model = (SessionPersistenceModel)formatter.Deserialize(file);
+                    SSOSessionPersistence model = (SSOSessionPersistence)formatter.Deserialize(file);
                     file.Close();
                     if (model != null)
                     {

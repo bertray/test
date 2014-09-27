@@ -22,8 +22,6 @@ namespace Toyota.Common.Lookup
         T Get<T>();
         IList<T> GetAll<T>();
         IList<object> GetAll();
-
-        bool IsEventSuppressed { set; get; }
         void Clear();
     }
 }
