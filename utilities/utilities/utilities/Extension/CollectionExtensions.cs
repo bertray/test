@@ -81,6 +81,26 @@ namespace Toyota.Common.Utilities
             }
             return default(T);
         }
+        public static int FindIndex<T>(this ICollection<T> list, Predicate<T> criteria)
+        {            
+            if (!list.IsNullOrEmpty())
+            {
+                bool found = false;
+                int counter = 0;
+                T listItem;
+                IEnumerator<T> enumerator = list.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    counter++;
+                    listItem = enumerator.Current;
+                    found = criteria.Invoke(listItem);
+                    if(found) {
+                        return counter;
+                    }
+                }
+            }
+            return -1;
+        }
         public static ICollection<T> Merge<T>(this ICollection<T> target, ICollection<T> source)
         {
             if (!target.IsNull() && !source.IsNullOrEmpty())

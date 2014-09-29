@@ -4,7 +4,7 @@
 /// Toyota .Net Development Kit
 /// Copyright (c) Toyota Motor Manufacturing Indonesia, All Right Reserved.
 /// </summary>
-/// 
+///
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +14,8 @@ namespace Toyota.Common.Workflow
 {
     public enum WorkflowDocumentStatus
     {
-        Transient,
-        OnQueue,
-        OnProgress,
-        Completed,
-        Aborted
+        Approved,
+        Rejected,
+        Pending
     }
 }

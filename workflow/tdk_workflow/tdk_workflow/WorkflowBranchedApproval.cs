@@ -4,7 +4,7 @@
 /// Toyota .Net Development Kit
 /// Copyright (c) Toyota Motor Manufacturing Indonesia, All Right Reserved.
 /// </summary>
-/// 
+///
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +12,13 @@ using System.Text;
 
 namespace Toyota.Common.Workflow
 {
-    public class WorkflowDocumentEvent
+    public class WorkflowBranchedApproval: WorkflowApproval
     {
-        public WorkflowDocumentEventType Type { set; get; }
-        public WorkflowDocument Source { set; get; }
+        public WorkflowBranchedApproval() 
+        {
+            Approvals = new List<WorkflowApproval>();
+        }
+
+        public IList<WorkflowApproval> Approvals { set; get; }
     }
 }

@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{87C73321-EC86-4E61-A960-7419A8808A8A}</ProjectGuid>
+    <ProjectGuid>{7AD06D3D-770D-47B8-B9A5-4F7F918A93E2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Toyota.Common.Workflow</RootNamespace>
-    <AssemblyName>Toyota.Common.Workflow</AssemblyName>
+    <AssemblyName>Toyota.Common.Workflow.Xml</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,14 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IWorkflowPolicy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WorkflowApproval.cs" />
-    <Compile Include="WorkflowBranchedApproval.cs" />
-    <Compile Include="WorkflowDocument.cs" />
-    <Compile Include="WorkflowDocumentStatus.cs" />
-    <Compile Include="WorkflowNetwork.cs" />
-    <Compile Include="WorkflowProcess.cs" />
+    <Compile Include="XmlWorkflowNetwork.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\credential\credential\credential\tdk_credential.csproj">
@@ -57,6 +51,10 @@
     <ProjectReference Include="..\..\..\utilities\utilities\utilities\tdk_utilities.csproj">
       <Project>{50CF6622-4B2C-411F-878B-E87A67EF40F2}</Project>
       <Name>tdk_utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tdk_workflow\tdk_workflow\tdk_workflow.csproj">
+      <Project>{87C73321-EC86-4E61-A960-7419A8808A8A}</Project>
+      <Name>tdk_workflow</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
