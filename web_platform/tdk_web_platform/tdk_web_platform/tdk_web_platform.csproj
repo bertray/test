@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="AjaxExtension\AjaxExtensionRegistry.cs" />
     <Compile Include="AjaxExtension\IAjaxExtension.cs" />
-    <Compile Include="AjaxExtension\InputValidationAjaxExtension.cs" />
+    <Compile Include="InputValidation\InputValidationAjaxExtension.cs" />
     <Compile Include="AjaxExtension\TimestampInfoAjaxExtension.cs" />
     <Compile Include="ApplicationSettings.cs" />
     <Compile Include="Browser\BrowserAgent.cs" />
