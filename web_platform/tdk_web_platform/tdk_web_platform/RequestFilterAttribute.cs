@@ -48,13 +48,6 @@ namespace Toyota.Common.Web.Platform
                         Action = PageController.DEFAULT_ACTION
                     }
                 ));
-
-                HttpCookie cookie = filterContext.HttpContext.Response.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
-                if (cookie != null)
-                {
-                    cookie.Value = string.Empty;
-                    cookie.Expires = DateTime.Now.AddDays(-1);
-                }
             }
             else if (!controller.Authentication.IsAuthorized && !ApplicationSettings.Instance.Security.IgnoreAuthorization) {
                 if (string.IsNullOrEmpty(ApplicationSettings.Instance.Security.UnauthorizedController))

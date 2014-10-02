@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using Toyota.Common.Web.Service;
 using Toyota.Common.Utilities;
+using Toyota.Common.Credential;
 
 namespace Toyota.Common.Web.Platform
 {
@@ -198,6 +199,27 @@ namespace Toyota.Common.Web.Platform
             }
             service.Dispose();
             return false;
+        }
+
+        public string GetLoggedInUser(string id)
+        {
+            ServiceParameter param = new ServiceParameter().Define(p =>
+            {
+                p.Command = "GetLoggedInUser";
+                p.Parameters.Add("Id", id);
+            });
+            IWebService service = ServiceFactory.Create();
+            ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
+            if (!runtimeResult.IsNull())
+            {
+                ServiceResult result = ServiceResult.Create(runtimeResult);
+                if (!result.IsNull() && (result.Status == ServiceStatus.Success))
+                {
+                    return result.Data.Get<string>("GetLoggedInUser");
+                }
+            }
+            service.Dispose();
+            return null;
         }
 
         public void Dispose()

@@ -58,7 +58,15 @@ namespace Toyota.Common.Web.Platform
                         }
                         id = SSOClient.Instance.Login(user.Username, user.Password);
                         string encryptedId = HttpServerUtility.UrlTokenEncode(Encoding.UTF8.GetBytes(id));
-                        HttpCookie cookie = new HttpCookie(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID, encryptedId);
+                        HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+                        if (cookie.IsNull())
+                        {
+                            cookie = new HttpCookie(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID, encryptedId);
+                        }
+                        else
+                        {
+                            cookie.Value = encryptedId;
+                        }
                         cookie.Expires = DateTime.Now.AddMinutes((int)user.SessionTimeout * 2);
                         Response.Cookies.Add(cookie);
                         SSOSessionStorage.Instance.Save(id, Lookup);
@@ -155,7 +163,7 @@ namespace Toyota.Common.Web.Platform
             Session.Timeout = (int)user.SessionTimeout;
             if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
             {
-                Session.Timeout = 1;
+                Session.Timeout = 15;
             }
         }
     }

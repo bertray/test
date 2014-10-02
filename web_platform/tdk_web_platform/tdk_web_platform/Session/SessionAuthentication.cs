@@ -28,6 +28,43 @@ namespace Toyota.Common.Web.Platform
             this.screenID = screenID;
             this.descriptor = descriptor;
         }
+
+        private bool IsSSOApplicable(HttpContextBase httpContext)
+        {
+            HttpSessionStateBase session = httpContext.Session;
+            ILookup lookup = (ILookup)session.Lookup();
+            HttpCookie cookie = httpContext.Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+            if (cookie.IsNull() || string.IsNullOrEmpty(cookie.Value))
+            {
+                return false;
+            }
+
+            string id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
+            if (SSOClient.Instance.IsSessionAlive(id))
+            {
+                ILookup persistedLookup = SSOSessionStorage.Instance.Load(id);
+                if (persistedLookup == null)
+                {
+                    persistedLookup = new SimpleLookup();
+                    string username = SSOClient.Instance.GetLoggedInUser(id);
+                    IUserProvider userProvider = ProviderRegistry.Instance.Get<IUserProvider>();
+                    persistedLookup.Add(userProvider.GetUser(username));
+                    SSOSessionStorage.Instance.Save(id, persistedLookup);
+                }
+                session[SessionKeys.LOOKUP] = persistedLookup;
+                SSOSessionLookupListener.RemoveExistingInstance(lookup);
+                persistedLookup.AddEventListener(new SSOSessionLookupListener(id));
+                lookup = persistedLookup;
+                return true;
+            }
+            else
+            {
+                SSOSessionStorage.Instance.Delete(id);
+                cookie.Expires = DateTime.Now.AddDays(-1);
+                httpContext.Response.Cookies.Add(cookie);
+                return false;
+            }
+        }
         
         public void Authenticate(RequestContext requestContext)
         {
@@ -59,39 +96,21 @@ namespace Toyota.Common.Web.Platform
             bool loginControllerExecuted = ApplicationSettings.Instance.Security.LoginController.Equals(screenID);
             if (loginControllerExecuted)
             {
+                /*if (ApplicationSettings.Instance.Security.EnableSingleSignOn && IsSSOApplicable(httpContext))
+                {
+                    httpContext.Response.Redirect(descriptor.BaseUrl + "/" + ApplicationSettings.Instance.Runtime.HomeController);
+                }*/
+
                 IsValid = true;
                 IsAuthorized = true;
                 return;
             }
 
-            if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
+            if (ApplicationSettings.Instance.Security.EnableSingleSignOn && !IsSSOApplicable(httpContext))
             {
-                HttpCookie cookie = httpContext.Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
-                if (cookie.IsNull() || string.IsNullOrEmpty(cookie.Value))
-                {
-                    IsValid = false;
-                    IsAuthorized = false;
-                    return;
-                }
-
-                string id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
-                if (SSOClient.Instance.IsSessionAlive(id))
-                {
-                    ILookup persistedLookup = SSOSessionStorage.Instance.Load(id);
-                    session[SessionKeys.LOOKUP] = persistedLookup;
-                    SSOSessionLookupListener.RemoveExistingInstance(lookup);
-                    persistedLookup.AddEventListener(new SSOSessionLookupListener(id));
-                    lookup = persistedLookup;
-                }
-                else
-                {
-                    SSOSessionStorage.Instance.Delete(id);
-                    cookie.Expires = DateTime.Now.AddDays(-1);
-                    httpContext.Response.Cookies.Add(cookie);
-                    IsValid = false;
-                    IsAuthorized = false;
-                    return;
-                }
+                IsValid = false;
+                IsAuthorized = false;
+                return;
             }
 
             User user = lookup.Get<User>();

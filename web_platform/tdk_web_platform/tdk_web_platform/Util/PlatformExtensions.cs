@@ -176,5 +176,15 @@ namespace Toyota.Common.Web.Platform
             }
             return null;
         }
+
+        public static T Get<T>(this ViewDataDictionary viewData, string key)
+        {
+            string result = string.Empty;
+            if(!viewData.IsNull() && !key.IsNullOrEmpty() && viewData.ContainsKey(key)) 
+            {
+                return (T)viewData[key];
+            }
+            return default(T);
+        }
     }
 }
