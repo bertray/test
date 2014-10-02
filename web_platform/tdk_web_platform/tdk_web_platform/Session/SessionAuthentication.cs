@@ -45,12 +45,18 @@ namespace Toyota.Common.Web.Platform
                 ILookup persistedLookup = SSOSessionStorage.Instance.Load(id);
                 if (persistedLookup == null)
                 {
-                    persistedLookup = new SimpleLookup();
-                    string username = SSOClient.Instance.GetLoggedInUser(id);
-                    IUserProvider userProvider = ProviderRegistry.Instance.Get<IUserProvider>();
-                    persistedLookup.Add(userProvider.GetUser(username));
-                    SSOSessionStorage.Instance.Save(id, persistedLookup);
+                    persistedLookup = new SimpleLookup();                    
                 }
+                persistedLookup.Remove <User>();
+                string username = SSOClient.Instance.GetLoggedInUser(id);
+                IUserProvider userProvider = ProviderRegistry.Instance.Get<IUserProvider>();
+                User user = userProvider.GetUser(username);
+                userProvider.FetchAuthorization(user);
+                userProvider.FetchOrganization(user);
+                userProvider.FetchPlant(user);
+                persistedLookup.Add(user);
+                SSOSessionStorage.Instance.Save(id, persistedLookup);
+
                 session[SessionKeys.LOOKUP] = persistedLookup;
                 SSOSessionLookupListener.RemoveExistingInstance(lookup);
                 persistedLookup.AddEventListener(new SSOSessionLookupListener(id));
