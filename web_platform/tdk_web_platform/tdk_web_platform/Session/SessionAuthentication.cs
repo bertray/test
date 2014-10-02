@@ -93,12 +93,6 @@ namespace Toyota.Common.Web.Platform
                     return;
                 }
             }
-            else
-            {
-                IsValid = false;
-                IsAuthorized = false;
-                return;
-            }       
 
             User user = lookup.Get<User>();
             if (user.IsNull())
