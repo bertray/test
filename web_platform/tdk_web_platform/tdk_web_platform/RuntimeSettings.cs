@@ -14,11 +14,13 @@ namespace Toyota.Common.Web.Platform
 {
     public class RuntimeSettings
     {
+        public const string DEFAULT_HOME_CONTROLLER_NAME = "Home";
+
         public RuntimeSettings()
         {
             Browser = new BrowserSettings();
             Mode = RuntimeMode.Online;
-            HomeController = "Home";
+            HomeController = DEFAULT_HOME_CONTROLLER_NAME;
             EnableMobileSupport = false;
         }
 

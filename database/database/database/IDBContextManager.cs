@@ -61,7 +61,7 @@ namespace Toyota.Common.Database
 
         /// <summary>
         /// Sets default connection descriptors.
-        /// Default connection descriptors is used by <c>GetContext</c>, <see cref="GetContext"/>.
+        /// Default connection descriptors is used by <c>GetContext</c>, <see cref="GetContext(string)"/>.
         /// <see cref="Toyota.Common.Database.ConnectionDescriptor"/>.
         /// </summary>
         /// <param name="connectionDescriptor">Connection descriptors</param>

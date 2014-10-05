@@ -224,27 +224,31 @@ namespace Toyota.Common.Web.Platform
             }
         }
 
-        private MenuList _authorizedMenu = null;
         public MenuList AuthorizedMenu
         {
             get
             {
-                if (!_authorizedMenu.IsNull())
+                object o_auth_menu = Helper.ViewData["_tdkAuthorizedApplicationMenu"];
+                if (!o_auth_menu.IsNull())
                 {
-                    return _authorizedMenu;
+                    return (MenuList) o_auth_menu;
                 }
 
                 MenuList menu = Menu;
-                User user = User;
+                object o_menu = Helper.ViewData["_tdkApplicationMenu"];
+                if (o_menu != null)
+                {
+                    menu = (MenuList)o_menu;
+                }
 
+                User user = User;
                 if (user.IsNull())
                 {
                     return menu;
                 }
-
                 if (!menu.IsNull())
                 {
-                    _authorizedMenu = new MenuList();
+                    MenuList _authorizedMenu = new MenuList();
                     bool authorized;
                     bool userHasRole = !user.Roles.IsNullOrEmpty();
                     foreach (Menu m in menu)
@@ -267,7 +271,8 @@ namespace Toyota.Common.Web.Platform
                             _authorizedMenu.Add(m);
                         }
                     }
-                    return _authorizedMenu;                  
+                    Helper.ViewData["_tdkAuthorizedApplicationMenu"] = _authorizedMenu;
+                    menu = _authorizedMenu;
                 }
                 return menu;
             }

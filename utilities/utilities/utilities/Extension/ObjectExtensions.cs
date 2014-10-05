@@ -169,5 +169,34 @@ namespace Toyota.Common.Utilities
             }
             return obj;
         }
+
+        public static string ToEmptyStringIfNull(this string str)
+        {
+            if (!string.IsNullOrEmpty(str))
+            {
+                return str;
+            }
+            return string.Empty;
+        }
+        public static bool IsNullOrEmpty(this string str)
+        {
+            return string.IsNullOrEmpty(str);
+        }
+        public static bool StringEquals(this string src, string tg)
+        {
+            if (!src.IsNull() && !tg.IsNull())
+            {
+                return src.Equals(tg);
+            }
+            return false;
+        }
+        public static bool StringEqualsIgnoreCase(this string src, string tg)
+        {
+            if (!src.IsNull() && !tg.IsNull())
+            {
+                return src.Equals(tg, StringComparison.OrdinalIgnoreCase);
+            }
+            return false;
+        }
     }
 }

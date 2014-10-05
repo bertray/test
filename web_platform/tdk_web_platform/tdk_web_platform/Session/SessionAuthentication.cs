@@ -29,14 +29,14 @@ namespace Toyota.Common.Web.Platform
             this.descriptor = descriptor;
         }
 
-        private bool IsSSOApplicable(HttpContextBase httpContext)
+        private User _GetSSOUser(HttpContextBase httpContext)
         {
             HttpSessionStateBase session = httpContext.Session;
             ILookup lookup = (ILookup)session.Lookup();
             HttpCookie cookie = httpContext.Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
             if (cookie.IsNull() || string.IsNullOrEmpty(cookie.Value))
             {
-                return false;
+                return null;
             }
 
             string id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
@@ -49,7 +49,7 @@ namespace Toyota.Common.Web.Platform
                 }
                 persistedLookup.Remove <User>();
                 string username = SSOClient.Instance.GetLoggedInUser(id);
-                IUserProvider userProvider = ProviderRegistry.Instance.Get<IUserProvider>();
+                IUserProvider userProvider = EssentialProviders.Instance.UserProvider;
                 User user = userProvider.GetUser(username);
                 userProvider.FetchAuthorization(user);
                 userProvider.FetchOrganization(user);
@@ -61,14 +61,14 @@ namespace Toyota.Common.Web.Platform
                 SSOSessionLookupListener.RemoveExistingInstance(lookup);
                 persistedLookup.AddEventListener(new SSOSessionLookupListener(id));
                 lookup = persistedLookup;
-                return true;
+                return user;
             }
             else
             {
                 SSOSessionStorage.Instance.Delete(id);
                 cookie.Expires = DateTime.Now.AddDays(-1);
                 httpContext.Response.Cookies.Add(cookie);
-                return false;
+                return null;
             }
         }
         
@@ -77,97 +77,111 @@ namespace Toyota.Common.Web.Platform
             HttpContextBase httpContext = requestContext.HttpContext;
             HttpSessionStateBase session = httpContext.Session;
             ILookup lookup = (ILookup)session.Lookup();
+            SecuritySettings settings = ApplicationSettings.Instance.Security;
 
-            if (ApplicationSettings.Instance.Security.SimulateAuthenticatedSession)
+            if (!settings.EnableAuthentication)
             {
-                if (session.IsNewSession)
-                {
-                    lookup.Remove<User>();
-                    lookup.Add(ApplicationSettings.Instance.Security.SimulatedAuthenticatedUser);
-                }
-            }
-
-            if (!ApplicationSettings.Instance.Security.EnableAuthentication)
-            {
-                IsValid = true;
-                IsAuthorized = false;
-                return;
-            }
-            
-            if (!Enabled)
-            {
-                return;
-            }
-
-            bool loginControllerExecuted = ApplicationSettings.Instance.Security.LoginController.Equals(screenID);
-            if (loginControllerExecuted)
-            {
-                /*if (ApplicationSettings.Instance.Security.EnableSingleSignOn && IsSSOApplicable(httpContext))
-                {
-                    httpContext.Response.Redirect(descriptor.BaseUrl + "/" + ApplicationSettings.Instance.Runtime.HomeController);
-                }*/
-
                 IsValid = true;
                 IsAuthorized = true;
                 return;
             }
-
-            if (ApplicationSettings.Instance.Security.EnableSingleSignOn && !IsSSOApplicable(httpContext))
+            else if (!Enabled)
             {
-                IsValid = false;
-                IsAuthorized = false;
                 return;
             }
 
             User user = lookup.Get<User>();
-            if (user.IsNull())
+            if (settings.EnableSingleSignOn)
             {
-                IsValid = false;
-                IsAuthorized = false;
-                return;            
+                user = _GetSSOUser(httpContext);
             }
-            IsValid = true;
+            if (user.IsNull())
+            {                
+                if (settings.LoginController.Equals(screenID))
+                {
+                    IsValid = true;
+                    IsAuthorized = true;
+                    return;
+                }
+                else if (settings.SimulateAuthenticatedSession && session.IsNewSession)
+                {
+                    lookup.Remove<User>();
+                    user = settings.SimulatedAuthenticatedUser;
+                    lookup.Add(user);
+                }
 
-            if (ApplicationSettings.Instance.Security.IgnoreAuthorization)
+                if (user.IsNull())
+                {
+                    IsValid = false;
+                    IsAuthorized = false;
+                    return;
+                }
+            }
+            else
+            {
+                IsValid = true;
+            }
+
+            if (settings.LoginController.Equals(screenID))
+            {
+                RedirectUrl = descriptor.BaseUrl + "/" + ApplicationSettings.Instance.Runtime.HomeController;                
+                IsAuthorized = true;
+                return;
+            }
+
+            if (settings.IgnoreAuthorization)
             {
                 IsAuthorized = true;
                 return;
             }
-            
-            bool forgotPasswordControllerExecuted = ApplicationSettings.Instance.Security.ForgotPasswordController.Equals(screenID);
-            bool unauthorizedControllerExecuted = string.IsNullOrEmpty(ApplicationSettings.Instance.Security.UnauthorizedController) ? false : ApplicationSettings.Instance.Security.UnauthorizedController.Equals(screenID);
-            bool homeControllerExecuted = ApplicationSettings.Instance.Runtime.HomeController.Equals(screenID);
-            if (unauthorizedControllerExecuted || forgotPasswordControllerExecuted || homeControllerExecuted)
+
+            if (settings.ForgotPasswordController.Equals(screenID))
             {
-                IsValid = true;
                 IsAuthorized = true;
                 return;
             }            
 
-            if (ApplicationSettings.Instance.Security.UseCustomAuthorizationRule)
+            if(!string.IsNullOrEmpty(settings.UnauthorizedController) && settings.UnauthorizedController.Equals(screenID)) 
             {
-                IAuthorizationRule rule = ProviderRegistry.Instance.Get<IAuthorizationRule>();
-                if (rule != null)
-                {
-                    AuthorizationRuleState resultState = rule.Authorize(requestContext);
-                    IsAuthorized = resultState.IsAuthorized;
-                    IsValid = resultState.IsValid;
-                    return;
-                }
+                IsAuthorized = true;
+                return;
             }
 
-            AuthorizationFunction authFunc;
-            user.Roles.IterateByAction(role => {
-                authFunc = role.Functions.FindElement(func => {
-                    return screenID.Equals(func.Id, StringComparison.OrdinalIgnoreCase);
+            if (screenID.Equals(ApplicationSettings.Instance.Runtime.HomeController) &&
+                screenID.Equals(RuntimeSettings.DEFAULT_HOME_CONTROLLER_NAME))
+            {
+                IsAuthorized = true;
+                return;
+            }
+
+            if (screenID.Equals(ApplicationSettings.Instance.Security.LoginController))
+            {
+                IsAuthorized = true;
+                return;
+            }
+
+            if (settings.UseCustomAuthorizationRule)
+            {
+                AuthorizationRuleState resultState = EssentialProviders.Instance.AuthorizationRule.Authorize(requestContext);
+                IsAuthorized = resultState.IsAuthorized;
+                IsValid = resultState.IsValid;
+            }
+            else
+            {
+                AuthorizationFunction authFunc;
+                user.Roles.IterateByAction(role => {
+                    authFunc = role.Functions.FindElement(func => {
+                        return screenID.Equals(func.Id, StringComparison.OrdinalIgnoreCase);
+                    });
+                    IsAuthorized = !authFunc.IsNull();
+                    return !IsAuthorized;
                 });
-                IsAuthorized = !authFunc.IsNull();
-                return !IsAuthorized;
-            });
+            }            
         }
 
         public bool Enabled { set; get; }
         public bool IsValid { set; get; }
         public bool IsAuthorized { set; get; }
+        public string RedirectUrl { set; get; }
     }
 }

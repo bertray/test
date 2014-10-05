@@ -57,6 +57,11 @@ namespace Toyota.Common.Web.Platform
                             SSOClient.Instance.Logout(user.Username, user.Password);
                         }
                         id = SSOClient.Instance.Login(user.Username, user.Password);
+                        if (string.IsNullOrEmpty(id))
+                        {
+                            Lookup.Remove<User>();
+                            return new MvcHtmlString("false");
+                        }
                         string encryptedId = HttpServerUtility.UrlTokenEncode(Encoding.UTF8.GetBytes(id));
                         HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
                         if (cookie.IsNull())

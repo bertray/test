@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Toyota.Common.Utilities;
-using Toyota.Common.Utilities;
 
 namespace Toyota.Common.Web.Platform
 {

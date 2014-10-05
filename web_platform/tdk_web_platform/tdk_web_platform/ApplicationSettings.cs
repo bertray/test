@@ -23,7 +23,6 @@ namespace Toyota.Common.Web.Platform
             Logging = new LogSettings();
             Runtime = new RuntimeSettings();
             DataUpload = new DataUploadSettings();
-            UI = new UserInterfaceSettings();
 
             Name = "Application Name";
             Alias = "AppAlias";
@@ -48,7 +47,6 @@ namespace Toyota.Common.Web.Platform
         public LogSettings Logging { private set; get; }
         public RuntimeSettings Runtime { private set; get; }
         public DataUploadSettings DataUpload { private set; get; }
-        public UserInterfaceSettings UI { private set; get; }
 
         public string Name { set; get; }
         public string Alias { set; get; }

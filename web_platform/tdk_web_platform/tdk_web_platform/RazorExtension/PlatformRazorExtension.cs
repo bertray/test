@@ -23,14 +23,12 @@ namespace Toyota.Common.Web.Platform
             Authorization = new AuthorizationRazorExtension();
             Application = new ApplicationRazorExtension();
             Util = new UtilitiesRazorExtension();
-            UI = new UIRazorExtension();
         }
          
         public PageRazorExtension Page { private set; get; }
         public AuthorizationRazorExtension Authorization { private set; get; }
         public ApplicationRazorExtension Application { private set; get; }
         public UtilitiesRazorExtension Util { private set; get; }
-        public UIRazorExtension UI { private set; get; }
 
         private HtmlHelper _helper;
         public override HtmlHelper Helper 
@@ -42,7 +40,6 @@ namespace Toyota.Common.Web.Platform
                 Authorization.Helper = value;
                 Application.Helper = value;
                 Util.Helper = value;
-                UI.Helper = value;
             }
             get
             {

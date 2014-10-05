@@ -112,7 +112,11 @@ namespace Toyota.Common.Web.Platform
             {
                 ViewData["_tdkScreenMessages"] = ScreenMessages.Pull();
             }
-            
+
+            if (!Authentication.RedirectUrl.IsNullOrEmpty())
+            {
+                return Redirect(Authentication.RedirectUrl);
+            }
             if (Request.Browser.IsMobileDevice && ApplicationSettings.Instance.Runtime.EnableMobileSupport)
             {
                 return View(string.Format("m{0}", Settings.IndexPage));

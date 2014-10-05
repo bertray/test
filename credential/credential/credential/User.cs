@@ -51,30 +51,61 @@ namespace Toyota.Common.Credential
         public DateTime PasswordExpirationDate { set; get; }        
         public virtual GenderCategory Gender { set; get; }
         public DateTime BirthDate { set; get; }
-
+        
+        [Obsolete("This property is obsolete, please don't use it")]
         public string Street { set; get; }
+        [Obsolete("This property is obsolete, please don't use it")]
         public virtual UserState State { set; get; }
+        [Obsolete("This property is obsolete, please don't use it")]
         public virtual UserCity City { set; get; }
+        [Obsolete("This property is obsolete, please don't use it")]
         public virtual UserProvince Province { set; get; }
-        public virtual UserCountry Country { set; get; }        
+        [Obsolete("This property is obsolete, please don't use it")]
+        public virtual UserCountry Country { set; get; }
+        [Obsolete("This property is obsolete, please don't use it")]
         public string Zip { set; get; }
+        
         public string Address { set; get; }
-
-        public virtual IList<string> Emails { private set; get; }        
-        public virtual IList<PhoneNumber> PhoneNumbers { private set; get; }
+        public virtual IList<string> Emails { set; get; }        
+        public virtual IList<PhoneNumber> PhoneNumbers { set; get; }
 
         public UserCompany Company { set; get; }
         public UserLocation Location { set; get; }
         public UserClass Class { set; get; }
-        public IList<UserCostCenter> CostCenters { private set; get; }
-        public IList<PlantOrganization> Plants { private set; get; }
-        public IList<OrganizationStructure> Organizations { private set; get; }
+        public IList<UserCostCenter> CostCenters { set; get; }
+        public IList<PlantOrganization> Plants { set; get; }
+        public IList<OrganizationStructure> Organizations { set; get; }
         public EmploymentStatus Employment { set; get; }
-        
-        public int? SessionTimeout { set; get; }
+
+        private int sessionTimeout;
+        public int? SessionTimeout
+        {
+            set
+            {
+                if (value.HasValue)
+                {
+                    sessionTimeout = value.Value;
+                }
+            }
+            get
+            {
+                int timeout = sessionTimeout;
+                if (!Roles.IsNullOrEmpty())
+                {                    
+                    foreach (Role role in Roles)
+                    {
+                        if (timeout < role.SessionTimeout)
+                        {
+                            timeout = role.SessionTimeout.Value;
+                        }
+                    }
+                }
+                return timeout;
+            }
+        }
         public int? LockTimeout { set; get; }
         public byte MaximumConcurrentLogin { set; get; }
-        public IList<Role> Roles { private set; get; }
+        public IList<Role> Roles { set; get; }
 
         public IList<UserSystem> Systems { set; get; }
         public UserSystem DefaultSystem

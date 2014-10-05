@@ -31,19 +31,24 @@ namespace Toyota.Common.Credential
         IList<User> GetUsers(long pageNumber, long pageSize);
         long GetUserCount();
         User GetUser(string username);
+        User IsUserAuthentic(string username, string password);
 
-        IList<User> Search(UserSearchCriteria criteria, object key);
-        IPagedData<User> Search(UserSearchCriteria criteria, long pageNumber, long pageSize, object key);        
-                
-        User IsUserAuthentic(string username, string password);        
-
+        [Obsolete("This method will be removed soon, please do not use this")]
         void FetchAuthorization(User user);
+        [Obsolete("This method will be removed soon, please do not use this")]
         void FetchAuthorization(IList<User> users);
-
+        [Obsolete("This method will be removed soon, please do not use this")]
         void FetchOrganization(User user);
+        [Obsolete("This method will be removed soon, please do not use this")]
         void FetchOrganization(IList<User> users);
-
+        [Obsolete("This method will be removed soon, please do not use this")]
         void FetchPlant(User user);
+        [Obsolete("This method will be removed soon, please do not use this")]
         void FetchPlant(IList<User> users);
+
+        [Obsolete("This method will be removed soon, please do not use this")]
+        IList<User> Search(UserSearchCriteria criteria, object key);
+        [Obsolete("This method will be removed soon, please do not use this")]
+        IPagedData<User> Search(UserSearchCriteria criteria, long pageNumber, long pageSize, object key);
     }
 }

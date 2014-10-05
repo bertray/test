@@ -61,6 +61,7 @@ namespace Toyota.Common.Web.Platform
 
             logSession.WriteLine(new LoggingMessage("Executing startup sequence ..."));
             Startup();
+            _LoadEssentialProvider();
             logSession.WriteLine(new LoggingMessage("Startup sequence complete."));
             logSession.Close();            
 
@@ -423,11 +424,10 @@ namespace Toyota.Common.Web.Platform
                 AjaxExtensionRegistry.Instance.Add(new SingleSignOnAjaxExtension());
             }
         }
-
-        //protected void ActivateSingleSignOn()
-        //{
-        //    ApplicationSettings.Instance.Security.EnableSingleSignOn = true;
-        //    //AjaxExtensionRegistry.Instance.Add(new SingleSignOnAjaxExtension());
-        //}
+        private void _LoadEssentialProvider()
+        {
+            EssentialProviders.Instance.UserProvider = ProviderRegistry.Instance.Get<IUserProvider>();
+            EssentialProviders.Instance.AuthorizationRule = ProviderRegistry.Instance.Get<IAuthorizationRule>();
+        }
     }
 }
