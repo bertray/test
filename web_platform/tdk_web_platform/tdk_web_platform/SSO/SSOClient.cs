@@ -35,29 +35,7 @@ namespace Toyota.Common.Web.Platform
             }
         }
 
-        private ServiceClientFactory<IWebService> ServiceFactory { set; get; }
-
-        public bool IsUserAuthentic(string username, string password)
-        {
-            ServiceParameter param = new ServiceParameter().Define(p =>
-            {
-                p.Command = "IsUserAuthentic";
-                p.Parameters.Add("username", username);
-                p.Parameters.Add("password", password);
-            });
-            IWebService service = ServiceFactory.Create();
-            ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
-            if (!runtimeResult.IsNull())
-            {
-                ServiceResult result = ServiceResult.Create(runtimeResult);
-                if (!result.IsNull() && (result.Status == ServiceStatus.Success))
-                {
-                    return result.Data.Get<bool>("IsUserAuthentic");
-                }
-            }
-            service.Dispose();
-            return false;
-        }
+        private ServiceClientFactory<IWebService> ServiceFactory { set; get; }        
 
         public string Login(string username, string password)
         {
@@ -72,7 +50,7 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                if (!result.IsNull() && (result.Status == ServiceStatus.Success))
+                if (!result.IsNull() && (result.Status == ServiceStatus.Success) && !result.Data.IsNull())
                 {
                     id = result.Data.Get<string>("Id");
                 }
@@ -81,106 +59,83 @@ namespace Toyota.Common.Web.Platform
             return id;
         }
 
-        public string IsUserLoggedIn(string username, string password)
+        public bool IsUserLocked(string id)
         {
-            string id = null;
-            ServiceParameter param = new ServiceParameter().Define(p =>
-            {
-                p.Command = "IsUserLoggedIn";
-                p.Parameters.Add("username", username);
-                p.Parameters.Add("password", password);
-            });
-            IWebService service = ServiceFactory.Create();
-            ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
-            if (!runtimeResult.IsNull())
-            {
-                ServiceResult result = ServiceResult.Create(runtimeResult);
-                if (!result.IsNull() && (result.Status == ServiceStatus.Success))
-                {
-                    id = result.Data.Get<string>("Id");
-                }
-            }
-            service.Dispose();
-            return id;
-        }
-
-        public bool IsUserLocked(string username, string password)
-        {
+            bool resultState = false;
             ServiceParameter param = new ServiceParameter().Define(p =>
             {
                 p.Command = "IsUserLocked";
-                p.Parameters.Add("username", username);
-                p.Parameters.Add("password", password);
+                p.Parameters.Add("id", id);
             });
             IWebService service = ServiceFactory.Create();
             ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                if (!result.IsNull() &&(result.Status == ServiceStatus.Success))
+                if (!result.IsNull() && (result.Status == ServiceStatus.Success) && !result.Data.IsNull())
                 {
-                    return result.Data.Get<bool>("IsUserLocked");
+                    resultState = result.Data.Get<bool>("IsUserLocked");
                 }
             }
             service.Dispose();
-            return false;
+            return resultState;
         }
 
-        public bool Lock(string username, string password)
+        public bool Lock(string id)
         {
+            bool resultState = false;
             ServiceParameter param = new ServiceParameter().Define(p =>
             {
                 p.Command = "IsUserLocked";
-                p.Parameters.Add("username", username);
-                p.Parameters.Add("password", password);
+                p.Parameters.Add("id", id);
             });
             IWebService service = ServiceFactory.Create();
             ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                return !result.IsNull() && (result.Status == ServiceStatus.Success);
+                resultState = !result.IsNull() && (result.Status == ServiceStatus.Success);
             }
             service.Dispose();
-            return false;
+            return resultState;
         }
 
-        public bool Unlock(string username, string password)
+        public bool Unlock(string id)
         {
+            bool resultState = false;
             ServiceParameter param = new ServiceParameter().Define(p =>
             {
                 p.Command = "Unlock";
-                p.Parameters.Add("username", username);
-                p.Parameters.Add("password", password);
+                p.Parameters.Add("id", id);
             });
             IWebService service = ServiceFactory.Create();
             ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                return !result.IsNull() && (result.Status == ServiceStatus.Success);
+                resultState = !result.IsNull() && (result.Status == ServiceStatus.Success);
             }
             service.Dispose();
-            return false;
+            return resultState;
         }
 
-        public bool Logout(string username, string password)
+        public bool Logout(string id)
         {
+            bool resultState = false;
             ServiceParameter param = new ServiceParameter().Define(p =>
             {
                 p.Command = "Logout";
-                p.Parameters.Add("username", username);
-                p.Parameters.Add("password", password);
+                p.Parameters.Add("id", id);
             });
             IWebService service = ServiceFactory.Create();
             ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                return !result.IsNull() && (result.Status == ServiceStatus.Success);
+                resultState = !result.IsNull() && (result.Status == ServiceStatus.Success);
             }
             service.Dispose();
-            return false;
+            return resultState;
         }
 
         public bool IsSessionAlive(string id)
@@ -213,13 +168,32 @@ namespace Toyota.Common.Web.Platform
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                if (!result.IsNull() && (result.Status == ServiceStatus.Success))
+                if (!result.IsNull() && (result.Status == ServiceStatus.Success) && !result.Data.IsNull())
                 {
                     return result.Data.Get<string>("GetLoggedInUser");
                 }
             }
             service.Dispose();
             return null;
+        }
+
+        public bool MarkActive(string id)
+        {
+            bool resultState = false;
+            ServiceParameter param = new ServiceParameter().Define(p =>
+            {
+                p.Command = "MarkActive";
+                p.Parameters.Add("id", id);
+            });
+            IWebService service = ServiceFactory.Create();
+            ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
+            if (!runtimeResult.IsNull())
+            {
+                ServiceResult result = ServiceResult.Create(runtimeResult);
+                resultState = !result.IsNull() && (result.Status == ServiceStatus.Success);
+            }
+            service.Dispose();
+            return resultState;
         }
 
         public void Dispose()

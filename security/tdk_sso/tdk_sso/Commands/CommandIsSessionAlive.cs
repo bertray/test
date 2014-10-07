@@ -1,0 +1,55 @@
+﻿///
+/// <author>lufty.abdillah@gmail.com</author>
+/// <summary>
+/// Toyota .Net Development Kit
+/// Copyright (c) Toyota Motor Manufacturing Indonesia, All Right Reserved.
+/// </summary>
+///
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using Toyota.Common.Web.Service;
+using Toyota.Common.Utilities;
+using Toyota.Common.Database;
+
+namespace Toyota.Common.SSO
+{
+    internal class CommandIsSessionAlive: ServiceCommand
+    {
+        public const string NAME = "IsSessionAlive";
+
+        public CommandIsSessionAlive() : base(NAME) { }
+
+        public override ServiceResult Execute(ServiceParameter parameter)
+        {
+            ServiceResult result = null;
+            if (!parameter.IsNull() && parameter.Parameters.HasKey("id"))
+            {
+                IDBContext db = null;
+                try
+                {
+                    result = new ServiceResult();
+                    db = SSO.Instance.DatabaseManager.GetContext();
+                    IList<LoginModel> logins = db.Fetch<LoginModel>("Login_SelectById", new { Id = parameter.Parameters.Get<string>("Id") });
+                    if (!logins.IsNullOrEmpty())
+                    {
+                        result.Status = ServiceStatus.Confirmed;
+                    }
+                    else
+                    {
+                        result.Status = ServiceStatus.Unavailable;
+                    }
+                }
+                finally
+                {
+                    if (!db.IsNull())
+                    {
+                        db.Close();
+                    }
+                }
+            }
+            return result;
+        }
+    }
+}

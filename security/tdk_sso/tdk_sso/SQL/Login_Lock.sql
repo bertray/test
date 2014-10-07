@@ -1,0 +1,3 @@
+﻿UPDATE TB_R_LOGIN 
+SET LOCKED = 1, LOCK_TIME = @LockTime, UNLOCK_TIME = null
+WHERE ID = @Id

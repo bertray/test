@@ -79,14 +79,10 @@ namespace Toyota.Common.Web.Platform
             ILookup lookup = (ILookup)session.Lookup();
             SecuritySettings settings = ApplicationSettings.Instance.Security;
 
-            if (!settings.EnableAuthentication)
+            if (!settings.EnableAuthentication || !Enabled)
             {
                 IsValid = true;
                 IsAuthorized = true;
-                return;
-            }
-            else if (!Enabled)
-            {
                 return;
             }
 

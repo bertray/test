@@ -157,9 +157,57 @@ namespace Toyota.Common.Web.Platform
             }
         }
 
+        public MvcHtmlString IsLocked()
+        {
+            SecuritySettings settings = ApplicationSettings.Instance.Security;
+            if (settings.EnableAuthentication && settings.EnableSingleSignOn)
+            {
+                User user = Lookup.Get<User>();
+                if (!user.IsNull())
+                {
+                    bool locked = SSOClient.Instance.IsUserLocked(user.Username, user.Password);
+                    return Convert.ToString(locked).ToLower().ToMvcHtmlString();
+                }
+            }
+            return "false".ToMvcHtmlString();
+        }
+
+        public MvcHtmlString Lock()
+        {
+            SecuritySettings settings = ApplicationSettings.Instance.Security;
+            if (settings.EnableAuthentication && settings.EnableSingleSignOn)
+            {
+                User user = Lookup.Get<User>();
+                if (!user.IsNull())
+                {
+                    bool locked = SSOClient.Instance.Lock(user.Username, user.Password);
+                    return Convert.ToString(locked).ToLower().ToMvcHtmlString();
+                }
+            }
+            return "false".ToMvcHtmlString();
+        }
+
+        public MvcHtmlString Unlock(string password)
+        {
+            SecuritySettings settings = ApplicationSettings.Instance.Security;
+            if (settings.EnableAuthentication && settings.EnableSingleSignOn)
+            {
+                User user = Lookup.Get<User>();
+                if (!user.IsNull())
+                {
+                    bool locked = SSOClient.Instance.Unlock(user.Username, password);
+                    return Convert.ToString(locked).ToLower().ToMvcHtmlString();
+                }
+            }
+            return "false".ToMvcHtmlString();
+        }
+
         protected override void Startup()
         {
-            Settings.Title = "Please Login";
+            if (string.IsNullOrEmpty(Settings.Title))
+            {
+                Settings.Title = "Please Login";
+            }            
         }    
 
         private void _SaveAuthenticatedUser(User user)
