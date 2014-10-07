@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.ServiceModel.Activation;
 using System.ServiceModel;
+using Toyota.Common.Utilities;
 
 namespace Toyota.Common.Web.Service
 {
@@ -26,7 +27,7 @@ namespace Toyota.Common.Web.Service
                 
         public virtual ServiceRuntimeResult Execute(ServiceRuntimeParameter parameter)
         {
-            if(Commands != null) 
+            if(!Commands.IsNull() && !parameter.IsNull() && !parameter.Command.IsNull()) 
             {
                 try
                 {

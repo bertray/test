@@ -12,7 +12,7 @@ using System.Web;
 
 namespace Toyota.Common.SSO
 {
-    internal class LoginModel
+    public class SSOLoginInfo
     {
         public string Username { set; get; }
         public string Id { set; get; }
@@ -24,5 +24,10 @@ namespace Toyota.Common.SSO
         public int LockTimeout { set; get; }
         public int MaximumLogin { set; get; }
         public DateTime LastActive { set; get; }
+        public string Hostname { set; get; }
+        public string HostIP { set; get; }
+        public string Browser { set; get; }
+        public string BrowserVersion { set; get; }
+        public bool IsMobile { set; get; }
     }
 }

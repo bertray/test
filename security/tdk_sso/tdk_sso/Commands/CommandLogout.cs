@@ -22,28 +22,34 @@ namespace Toyota.Common.SSO
 
         public override ServiceResult Execute(ServiceParameter parameter)
         {
+            ServiceResult result = null;
             if (!parameter.IsNull() && parameter.Parameters.HasKey("id"))
             {
                 string id = parameter.Parameters.Get<string>("id");
-                ServiceResult result = new ServiceResult();
+                result = new ServiceResult();
                 DateTime today = DateTime.Now;
                 IDBContext db = SSO.Instance.DatabaseManager.GetContext();
                 db.BeginTransaction();
                 try
                 {
-                    IList<LoginModel> logins = db.Fetch<LoginModel>("Login_SelectById", new { Id = id });
+                    IList<SSOLoginInfo> logins = db.Fetch<SSOLoginInfo>("Login_SelectById", new { Id = id });
                     if (!logins.IsNullOrEmpty())
                     {
-                        LoginModel login = logins.First();
+                        SSOLoginInfo login = logins.First();
                         db.Execute("Login_History_Insert", new
                         {
-                            Username = login.Username,
-                            LoginTime = login.LoginTime,
-                            LogoutTime = today,
+                            Id = login.Id,
+                            Username = login.Username,                            
+                            LoginTime = today,
                             SessionTimeout = login.SessionTimeout,
-                            LockTimeout = login.LockTimeout
+                            LockTimeout = login.LockTimeout,
+                            MaxLogin = login.MaximumLogin,
+                            Hostname = login.Hostname,
+                            HostIP = login.HostIP,
+                            Browser = login.Browser,
+                            BrowserVersion = login.BrowserVersion,
+                            IsMobile = login.IsMobile
                         });
-
                         db.Execute("Login_Delete", new { Id = login.Id });
                     }
 
@@ -59,9 +65,8 @@ namespace Toyota.Common.SSO
                 {
                     db.Close();
                 }
-                return result;
             }
-            return null;
+            return result;
         }
     }
 }

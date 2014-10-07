@@ -1,16 +1,26 @@
 ﻿INSERT INTO [TB_R_LOGIN]
-           ([USERNAME]
-		   ,[ID]
+           ([ID]
+           ,[USERNAME]
            ,[LOGIN_TIME]
-		   ,[SESSION_TIMEOUT]
-		   ,[LOCK_TIMEOUT]
-		   ,[MAX_LOGIN])
+           ,[SESSION_TIMEOUT]
+           ,[LOCK_TIMEOUT]
+           ,[MAX_LOGIN]
+           ,[HOSTNAME]
+           ,[HOST_IP]
+           ,[BROWSER]
+           ,[BROWSER_VERSION]
+           ,[IS_MOBILE])
      VALUES
-           (@Username
-		   ,@Id
+           (@Id
+           ,@Username
            ,@LoginTime
-		   ,@SessionTimeout
-		   ,@LockTimeout
-		   ,@MaxLogin)
+           ,@SessionTimeout
+           ,@LockTimeout
+           ,@MaxLogin
+           ,@Hostname
+           ,@HostIP
+           ,@Browser
+           ,@BrowserVersion
+           ,@IsMobile)
 
 

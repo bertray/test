@@ -36,7 +36,7 @@ namespace Toyota.Common.SSO
                 {
                     result = new ServiceResult();
                     db = SSO.Instance.DatabaseManager.GetContext();
-                    IList<LoginModel> logins = db.Fetch<LoginModel>("Login_SelectById", new { Id = id });
+                    IList<SSOLoginInfo> logins = db.Fetch<SSOLoginInfo>("Login_SelectById", new { Id = id });
                     if (!logins.IsNullOrEmpty())
                     {
                         result.Status = ServiceStatus.Success;

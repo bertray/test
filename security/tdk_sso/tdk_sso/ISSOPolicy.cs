@@ -8,12 +8,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
 
 namespace Toyota.Common.SSO
 {
-    internal class LoginHistoryModel: LoginModel
+    public interface ISSOPolicy
     {
-        public string Id { set; get; }
+        SSOPolicyState Evaluate(SSOLoginInfo info, DateTime time);
     }
 }

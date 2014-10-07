@@ -49,12 +49,13 @@
     <Compile Include="Commands\CommandIsSessionAlive.cs" />
     <Compile Include="Commands\CommandMarkActive.cs" />
     <Compile Include="Commands\CommandUnlock.cs" />
-    <Compile Include="Commands\CommandIsUserAuthentic.cs" />
     <Compile Include="Configurations.cs" />
-    <Compile Include="Model\LoginHistoryModel.cs" />
-    <Compile Include="Model\LoginModel.cs" />
+    <Compile Include="DefaultPolicy.cs" />
+    <Compile Include="ISSOPolicy.cs" />
+    <Compile Include="Model\SSOLoginInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SSO.cs" />
+    <Compile Include="SSOPolicyState.cs" />
     <Compile Include="SSOService.cs" />
     <Compile Include="Walker.cs" />
   </ItemGroup>
@@ -91,7 +92,6 @@
     <EmbeddedResource Include="SQL\Login_Lock.sql" />
     <EmbeddedResource Include="SQL\Login_Select.sql" />
     <EmbeddedResource Include="SQL\Login_SelectById.sql" />
-    <EmbeddedResource Include="SQL\Login_SelectByUsername.sql" />
     <EmbeddedResource Include="SQL\Login_Unlock.sql" />
   </ItemGroup>
   <ItemGroup>

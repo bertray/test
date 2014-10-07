@@ -33,7 +33,7 @@ namespace Toyota.Common.SSO
                     result = new ServiceResult();
                     DateTime today = DateTime.Now;
                     db = SSO.Instance.DatabaseManager.GetContext();
-                    db.Execute("Login_Unlock", new { Id = id });
+                    db.Execute("Login_Unlock", new { Id = id, UnlockTime = today });
                     db.Close();
                     result.Status = ServiceStatus.Success;
                 }

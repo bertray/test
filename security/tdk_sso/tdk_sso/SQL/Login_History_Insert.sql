@@ -1,14 +1,26 @@
 ﻿INSERT INTO [TB_R_LOGIN_HISTORY]
-           ([USERNAME]
+           ([ID]
+           ,[USERNAME]
            ,[LOGIN_TIME]
-           ,[LOGOUT_TIME]
-		   ,[SESSION_TIMEOUT]
-		   ,[LOCK_TIMEOUT])
+           ,[SESSION_TIMEOUT]
+           ,[LOCK_TIMEOUT]
+           ,[MAX_LOGIN]
+           ,[HOSTNAME]
+           ,[HOST_IP]
+           ,[BROWSER]
+           ,[BROWSER_VERSION]
+           ,[IS_MOBILE])
      VALUES
-           (@Username
+           (@Id
+           ,@Username
            ,@LoginTime
-           ,@LogoutTime
-		   ,@SessionTimeout
-		   ,@LockTimeout)
+           ,@SessionTimeout
+           ,@LockTimeout
+           ,@MaxLogin
+           ,@Hostname
+           ,@HostIP
+           ,@Browser
+           ,@BrowserVersion
+           ,@IsMobile)
 
 

@@ -26,20 +26,15 @@ namespace Toyota.Common.SSO
             ServiceResult result = null;
             if (!parameter.IsNull() && parameter.Parameters.HasKey("id"))
             {
+                string id = parameter.Parameters.Get<string>("id");
                 IDBContext db = null;
                 try
                 {
                     result = new ServiceResult();
                     db = SSO.Instance.DatabaseManager.GetContext();
-                    IList<LoginModel> logins = db.Fetch<LoginModel>("Login_SelectById", new { Id = parameter.Parameters.Get<string>("Id") });
-                    if (!logins.IsNullOrEmpty())
-                    {
-                        result.Status = ServiceStatus.Confirmed;
-                    }
-                    else
-                    {
-                        result.Status = ServiceStatus.Unavailable;
-                    }
+                    IList<SSOLoginInfo> logins = db.Fetch<SSOLoginInfo>("Login_SelectById", new { Id = id });
+                    result.Data.Add<bool>("IsSessionAlive", !logins.IsNullOrEmpty());
+                    result.Status = ServiceStatus.Success;
                 }
                 finally
                 {

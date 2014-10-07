@@ -29,7 +29,6 @@ namespace Toyota.Common.SSO
             SSO providers = SSO.Instance;
             Walker.Instance.Start();
 
-            Commands.AddCommand(new CommandIsUserAuthentic());
             Commands.AddCommand(new CommandLogin());
             Commands.AddCommand(new CommandLogout());
             Commands.AddCommand(new CommandUnlock());
@@ -37,6 +36,7 @@ namespace Toyota.Common.SSO
             Commands.AddCommand(new CommandIsUserLocked());
             Commands.AddCommand(new CommandIsSessionAlive());
             Commands.AddCommand(new CommandGetLoggedInUser());
+            Commands.AddCommand(new CommandMarkActive());
         }
 
         private void _InitConfiguration()
@@ -99,9 +99,18 @@ namespace Toyota.Common.SSO
             binder.Save();
         }
 
-        protected void Init(IUserProvider userProvider)
+        protected void Init(IUserProvider userProvider, ISSOPolicy policy)
         {
             SSO.Instance.UserProvider = userProvider;
+            if (!policy.IsNull())
+            {
+                Walker.Instance.Policy = policy;
+            }            
+        }
+
+        protected void Init(IUserProvider userProvider)
+        {
+            Init(userProvider, null);
         }
     }
 }

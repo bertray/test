@@ -28,12 +28,13 @@ namespace Toyota.Common.SSO
             {
                 try
                 {
+                    result = new ServiceResult();
                     string id = parameter.Parameters.Get<string>("id");
                     DateTime today = DateTime.Now;
                     db = SSO.Instance.DatabaseManager.GetContext();
                     db.Execute("Login_Lock", new { Id = id, LockTime = today });
                     db.Close();
-                    result = new ServiceResult() { Status = ServiceStatus.Success };
+                    result.Status = ServiceStatus.Success;
                 }
                 finally
                 {

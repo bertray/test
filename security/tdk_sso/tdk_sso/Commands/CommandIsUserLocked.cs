@@ -18,7 +18,7 @@ namespace Toyota.Common.SSO
 {
     internal class CommandIsUserLocked: ServiceCommand
     {
-        public const string NAME = "IsUserLocked";
+        public const string NAME = "IsLocked";
 
         public CommandIsUserLocked() : base(NAME) { }
 
@@ -31,12 +31,13 @@ namespace Toyota.Common.SSO
                 string id = parameter.Parameters.Get<string>("id");
                 try
                 {
+                    result = new ServiceResult();
                     DateTime today = DateTime.Now;
                     db = SSO.Instance.DatabaseManager.GetContext();
-                    IList<LoginModel> logins = db.Fetch<LoginModel>("Login_SelectById", new { Id = id });
+                    IList<SSOLoginInfo> logins = db.Fetch<SSOLoginInfo>("Login_SelectById", new { Id = id });
                     if (!logins.IsNullOrEmpty())
                     {
-                        LoginModel login = logins.First();
+                        SSOLoginInfo login = logins.First();
                         result.Data.Add<bool>(NAME, login.Locked);
                     }
                     db.Close();

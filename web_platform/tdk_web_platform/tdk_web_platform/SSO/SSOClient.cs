@@ -37,7 +37,8 @@ namespace Toyota.Common.Web.Platform
 
         private ServiceClientFactory<IWebService> ServiceFactory { set; get; }        
 
-        public string Login(string username, string password)
+        public string Login(string username, string password, string hostname, 
+            string hostIP, string browser, string browserVersion, bool isMobile)
         {
             string id = null;
             ServiceParameter param = new ServiceParameter().Define(p => {

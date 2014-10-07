@@ -19,7 +19,10 @@ namespace Toyota.Common.SSO
 {
     internal class Walker: IDisposable
     {
-        private Walker() { }
+        private Walker() 
+        {
+            Policy = new DefaultPolicy();
+        }
 
         private static Walker instance = null;
         public static Walker Instance
@@ -35,12 +38,16 @@ namespace Toyota.Common.SSO
         }
 
         private Timer _Timer { set; get; }
+        public ISSOPolicy Policy { set; get; }
 
         public void Start()
         {
-            _Timer = new Timer(Configurations.Instance.WalkerWorkingPeriod);
-            _Timer.Elapsed += CheckLogins;
-            _Timer.Start();            
+            if (!Policy.IsNull())
+            {
+                _Timer = new Timer(Configurations.Instance.WalkerWorkingPeriod);
+                _Timer.Elapsed += CheckLogins;
+                _Timer.Start();            
+            }            
         }
 
         public void Stop()
@@ -65,59 +72,40 @@ namespace Toyota.Common.SSO
             try
             {
                 db.BeginTransaction();
-                
-                IList<LoginModel> logins = db.Fetch<LoginModel>("Login_Select");
-                if (!logins.IsNullOrEmpty())
+                DateTime today = DateTime.Now;
+                IList<SSOLoginInfo> infos = db.Fetch<SSOLoginInfo>("Login_Select");
+                if (!infos.IsNullOrEmpty())
                 {
-                    DateTime today = DateTime.Now;
-                    int mindiff;
-                    foreach (LoginModel login in logins)
+                    SSOPolicyState state;
+                    foreach (SSOLoginInfo info in infos)
                     {
-                        if (!login.LastActive.IsNull() && (login.LastActive > SqlDateTime.MinValue))
+                        state = Policy.Evaluate(info, today);
+                        switch (state)
                         {
-                            mindiff = today.Subtract(login.LastActive).Minutes;
-                        }
-                        else
-                        {
-                            mindiff = today.Subtract(login.LoginTime).Minutes;
-                        }                        
-
-                        if (mindiff >= login.SessionTimeout)
-                        {
-                            db.Execute("Login_History_Insert", new
-                            {
-                                Username = login.Username,
-                                LoginTime = login.LoginTime,
-                                LogoutTime = today,
-                                SessionTimeout = login.SessionTimeout,
-                                LockTimeout = login.LockTimeout
-                            });
-
-                            db.Execute("Login_Delete", new { Username = login.Username });
-                        }
-                        else
-                        {
-                            if (!login.UnlockTime.IsNull())
-                            {
-                                mindiff = today.Subtract(login.UnlockTime).Minutes;
-                            }
-                            else
-                            {
-                                mindiff = today.Subtract(login.LoginTime).Minutes;
-                            }
-
-                            if (mindiff >= login.LockTimeout)
-                            {
-                                db.Execute("Login_Lock", new
+                            case SSOPolicyState.SessionExpired:
+                                db.Execute("Login_History_Insert", new
                                 {
-                                    Username = login.Username,
-                                    LockTime = today
+                                    Id = info.Id,
+                                    Username = info.Username,
+                                    LoginTime = today,
+                                    SessionTimeout = info.SessionTimeout,
+                                    LockTimeout = info.LockTimeout,
+                                    MaxLogin = info.MaximumLogin,
+                                    Hostname = info.Hostname,
+                                    HostIP = info.HostIP,
+                                    Browser = info.Browser,
+                                    BrowserVersion = info.BrowserVersion,
+                                    IsMobile = info.IsMobile
                                 });
-                            }
-                        }                        
+                                db.Execute("Login_Delete", new { Id = info.Id });                                
+                                break;
+                            case SSOPolicyState.LockActive:
+                                db.Execute("Login_Lock", new { Id = info.Id, LockTime = today });
+                                break;
+                            default: break;
+                        }
                     }
                 }
-
                 db.CommitTransaction();
             }
             catch (Exception ex)

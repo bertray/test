@@ -23,10 +23,23 @@ namespace Toyota.Common.SSO
         public override ServiceResult Execute(ServiceParameter parameter)
         {
             ServiceResult result = null;
-            if (!parameter.IsNull() && parameter.Parameters.HasKey("username") && parameter.Parameters.HasKey("password"))
+            if (!parameter.IsNull() && 
+                parameter.Parameters.HasKey("username") && 
+                parameter.Parameters.HasKey("password") &&
+                parameter.Parameters.HasKey("hostname") &&
+                parameter.Parameters.HasKey("host_ip") &&
+                parameter.Parameters.HasKey("browser") &&
+                parameter.Parameters.HasKey("browser_version") &&
+                parameter.Parameters.HasKey("is_mobile"))
             {
                 string username = parameter.Parameters.Get<string>("username");
                 string password = parameter.Parameters.Get<string>("password");
+                string hostname = parameter.Parameters.Get<string>("hostname");
+                string hostIP = parameter.Parameters.Get<string>("host_ip");
+                string browser = parameter.Parameters.Get<string>("browser");
+                string browserVersion = parameter.Parameters.Get<string>("browser_version");
+                bool isMobile = parameter.Parameters.Get<bool>("is_mobile");
+
                 IDBContext db = null;
                 try
                 {
@@ -40,14 +53,19 @@ namespace Toyota.Common.SSO
                         string sessionId = Guid.NewGuid().ToString();
                         db.Execute("Login_Insert", new
                         {
-                            Username = username,
                             Id = sessionId,
+                            Username = username,                            
                             LoginTime = today,
                             SessionTimeout = user.SessionTimeout,
                             LockTimeout = user.LockTimeout,
-                            MaxLogin = user.MaximumConcurrentLogin
+                            MaxLogin = user.MaximumConcurrentLogin,
+                            Hostname = hostname,
+                            HostIP = hostIP,
+                            Browser = browser,
+                            BrowserVersion = browserVersion,
+                            IsMobile = isMobile
                         });
-                        result.Data.Add("Id", sessionId);
+                        result.Data.Add("id", sessionId);
                         result.Status = ServiceStatus.Success;
                     }
                     else
@@ -61,11 +79,9 @@ namespace Toyota.Common.SSO
                     {
                         db.Close();
                     }
-                }                
-                
-                return result;
+                }
             }
-            return null;
+            return result;
         }
     }
 }

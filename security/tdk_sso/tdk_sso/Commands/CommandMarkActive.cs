@@ -14,7 +14,7 @@ using Toyota.Common.Utilities;
 using Toyota.Common.Credential;
 using Toyota.Common.Database;
 
-namespace Toyota.Common.SSO.Commands
+namespace Toyota.Common.SSO
 {
     public class CommandMarkActive: ServiceCommand
     {
@@ -28,11 +28,12 @@ namespace Toyota.Common.SSO.Commands
                 IDBContext db = null;
                 try
                 {
+                    result = new ServiceResult();
                     string id = parameter.Parameters.Get<string>("id");
                     DateTime today = DateTime.Now;
                     db = SSO.Instance.DatabaseManager.GetContext();
-                    db.Execute("Login_MarkActive", new { Id = id });                    
-                    result = new ServiceResult() { Status = ServiceStatus.Success };
+                    db.Execute("Login_MarkActive", new { Id = id, LastActive = today });
+                    result.Status = ServiceStatus.Success;
                 }
                 finally
                 {
