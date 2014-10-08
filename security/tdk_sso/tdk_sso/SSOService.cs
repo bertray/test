@@ -33,10 +33,11 @@ namespace Toyota.Common.SSO
             Commands.AddCommand(new CommandLogout());
             Commands.AddCommand(new CommandUnlock());
             Commands.AddCommand(new CommandLock());
-            Commands.AddCommand(new CommandIsUserLocked());
-            Commands.AddCommand(new CommandIsSessionAlive());
+            Commands.AddCommand(new CommandIsLocked());
+            Commands.AddCommand(new CommandIsAlive());
             Commands.AddCommand(new CommandGetLoggedInUser());
             Commands.AddCommand(new CommandMarkActive());
+            Commands.AddCommand(new CommandIsLoggedIn());
         }
 
         private void _InitConfiguration()

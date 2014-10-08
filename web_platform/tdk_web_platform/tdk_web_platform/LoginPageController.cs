@@ -51,12 +51,23 @@ namespace Toyota.Common.Web.Platform
 
                     if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
                     {
-                        string id = SSOClient.Instance.IsUserLoggedIn(user.Username, user.Password);
+                        string id = SSOClient.Instance.IsLoggedIn(
+                            user.Username, 
+                            Request.UserHostName, Request.UserHostAddress, 
+                            Request.Browser.Browser, Request.Browser.Version, 
+                            Request.Browser.IsMobileDevice
+
+                        );
                         if (!string.IsNullOrEmpty(id))
                         {
-                            SSOClient.Instance.Logout(user.Username, user.Password);
+                            SSOClient.Instance.Logout(id);
                         }
-                        id = SSOClient.Instance.Login(user.Username, user.Password);
+                        id = SSOClient.Instance.Login(
+                            user.Username, user.Password,
+                            Request.UserHostName, Request.UserHostAddress,
+                            Request.Browser.Browser, Request.Browser.Version,
+                            Request.Browser.IsMobileDevice
+                        );
                         if (string.IsNullOrEmpty(id))
                         {
                             Lookup.Remove<User>();
@@ -109,30 +120,38 @@ namespace Toyota.Common.Web.Platform
 
             User user = Lookup.Get<User>();
             bool loggedOut = !user.IsNull();
-            if (user != null)
-            {
-                Lookup.Remove<User>();                
+            if (loggedOut)
+            {                
                 if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
                 {
                     string id = null;
+                    HttpCookie cookie = null;
                     if (Request.Cookies.AllKeys.Contains(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID))
                     {
-                        HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+                        cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
                         id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
-                        cookie.Value = null;
-                        cookie.Expires = DateTime.Now.AddDays(-1);
-                        Response.Cookies.Add(cookie);
-                    }
-
-                    if (SSOClient.Instance.Logout(user.Username, user.Password))
-                    {
-                        SSOSessionStorage.Instance.Delete(id);
-                    }
-                    else
-                    {
-                        loggedOut = false;
+                        if (!string.IsNullOrEmpty(id))
+                        {
+                            loggedOut = SSOClient.Instance.Logout(id);
+                            if (loggedOut)
+                            {
+                                cookie.Value = null;
+                                cookie.Expires = DateTime.Now.AddDays(-1);
+                                Response.Cookies.Add(cookie);
+                                SSOSessionStorage.Instance.Delete(id);
+                            }
+                        }
+                        else
+                        {
+                            loggedOut = false;
+                        }
                     }
                 }          
+            }
+
+            if (loggedOut)
+            {
+                Lookup.Remove<User>();                
             }
 
             return new MvcHtmlString(loggedOut ? "true" : "false");
@@ -159,46 +178,70 @@ namespace Toyota.Common.Web.Platform
 
         public MvcHtmlString IsLocked()
         {
-            //SecuritySettings settings = ApplicationSettings.Instance.Security;
-            //if (settings.EnableAuthentication && settings.EnableSingleSignOn)
-            //{
-            //    User user = Lookup.Get<User>();
-            //    if (!user.IsNull())
-            //    {
-            //        bool locked = SSOClient.Instance.IsUserLocked(user.Username, user.Password);
-            //        return Convert.ToString(locked).ToLower().ToMvcHtmlString();
-            //    }
-            //}
+            SecuritySettings settings = ApplicationSettings.Instance.Security;
+            if (settings.EnableAuthentication && settings.EnableSingleSignOn)
+            {
+                string id = null;
+                if (Request.Cookies.AllKeys.Contains(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID))
+                {
+                    HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+                    id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
+                }
+
+                if (!string.IsNullOrEmpty(id))
+                {
+                    bool locked = SSOClient.Instance.IsLocked(id);
+                    return Convert.ToString(locked).ToLower().ToMvcHtmlString();
+                }
+            }
             return "false".ToMvcHtmlString();
         }
 
         public MvcHtmlString Lock()
         {
-            //SecuritySettings settings = ApplicationSettings.Instance.Security;
-            //if (settings.EnableAuthentication && settings.EnableSingleSignOn)
-            //{
-            //    User user = Lookup.Get<User>();
-            //    if (!user.IsNull())
-            //    {
-            //        bool locked = SSOClient.Instance.Lock(user.Username, user.Password);
-            //        return Convert.ToString(locked).ToLower().ToMvcHtmlString();
-            //    }
-            //}
+            SecuritySettings settings = ApplicationSettings.Instance.Security;
+            if (settings.EnableAuthentication && settings.EnableSingleSignOn)
+            {
+                string id = null;
+                if (Request.Cookies.AllKeys.Contains(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID))
+                {
+                    HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+                    id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
+                }
+
+                if (!string.IsNullOrEmpty(id))
+                {
+                    bool locked = SSOClient.Instance.Lock(id);
+                    return Convert.ToString(locked).ToLower().ToMvcHtmlString();
+                }
+            }
             return "false".ToMvcHtmlString();
         }
 
         public MvcHtmlString Unlock(string password)
         {
-            //SecuritySettings settings = ApplicationSettings.Instance.Security;
-            //if (settings.EnableAuthentication && settings.EnableSingleSignOn)
-            //{
-            //    User user = Lookup.Get<User>();
-            //    if (!user.IsNull())
-            //    {
-            //        bool locked = SSOClient.Instance.Unlock(user.Username, password);
-            //        return Convert.ToString(locked).ToLower().ToMvcHtmlString();
-            //    }
-            //}
+            User user = Lookup.Get<User>();
+            if (user.IsNull() || !user.Password.Equals(password))
+            {
+                return "false".ToMvcHtmlString();
+            }
+
+            SecuritySettings settings = ApplicationSettings.Instance.Security;
+            if (settings.EnableAuthentication && settings.EnableSingleSignOn)
+            {
+                string id = null;
+                if (Request.Cookies.AllKeys.Contains(GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID))
+                {
+                    HttpCookie cookie = Request.Cookies[GlobalConstants.Instance.SECURITY_COOKIE_SESSIONID];
+                    id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
+                }
+
+                if (!string.IsNullOrEmpty(id))
+                {
+                    bool locked = SSOClient.Instance.Unlock(id);
+                    return Convert.ToString(locked).ToLower().ToMvcHtmlString();
+                }
+            }
             return "false".ToMvcHtmlString();
         }
 

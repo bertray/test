@@ -45,6 +45,11 @@ namespace Toyota.Common.Web.Platform
                 p.Command = "Login";
                 p.Parameters.Add("username", username);
                 p.Parameters.Add("password", password);
+                p.Parameters.Add("hostname", hostname);
+                p.Parameters.Add("host_ip", hostIP);
+                p.Parameters.Add("browser", browser);
+                p.Parameters.Add("browser_version", browserVersion);
+                p.Parameters.Add("is_mobile", isMobile);
             });
             IWebService service = ServiceFactory.Create();
             ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
@@ -53,19 +58,19 @@ namespace Toyota.Common.Web.Platform
                 ServiceResult result = ServiceResult.Create(runtimeResult);
                 if (!result.IsNull() && (result.Status == ServiceStatus.Success) && !result.Data.IsNull())
                 {
-                    id = result.Data.Get<string>("Id");
+                    id = result.Data.Get<string>("id");
                 }
             }
             service.Dispose();
             return id;
         }
 
-        public bool IsUserLocked(string id)
+        public bool IsLocked(string id)
         {
             bool resultState = false;
             ServiceParameter param = new ServiceParameter().Define(p =>
             {
-                p.Command = "IsUserLocked";
+                p.Command = "IsLocked";
                 p.Parameters.Add("id", id);
             });
             IWebService service = ServiceFactory.Create();
@@ -75,7 +80,7 @@ namespace Toyota.Common.Web.Platform
                 ServiceResult result = ServiceResult.Create(runtimeResult);
                 if (!result.IsNull() && (result.Status == ServiceStatus.Success) && !result.Data.IsNull())
                 {
-                    resultState = result.Data.Get<bool>("IsUserLocked");
+                    resultState = result.Data.Get<bool>("is_locked");
                 }
             }
             service.Dispose();
@@ -87,7 +92,7 @@ namespace Toyota.Common.Web.Platform
             bool resultState = false;
             ServiceParameter param = new ServiceParameter().Define(p =>
             {
-                p.Command = "IsUserLocked";
+                p.Command = "Lock";
                 p.Parameters.Add("id", id);
             });
             IWebService service = ServiceFactory.Create();
@@ -139,22 +144,51 @@ namespace Toyota.Common.Web.Platform
             return resultState;
         }
 
-        public bool IsSessionAlive(string id)
+        public bool IsAlive(string id)
         {
+            bool state = false;
             ServiceParameter param = new ServiceParameter().Define(p =>
             {
-                p.Command = "IsSessionAlive";
-                p.Parameters.Add("Id", id);
+                p.Command = "IsAlive";
+                p.Parameters.Add("id", id);
             });
             IWebService service = ServiceFactory.Create();
             ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
             if (!runtimeResult.IsNull())
             {
                 ServiceResult result = ServiceResult.Create(runtimeResult);
-                return !result.IsNull() && (result.Status == ServiceStatus.Confirmed);
+                state = !result.IsNull() && (result.Status == ServiceStatus.Confirmed);
             }
             service.Dispose();
-            return false;
+            return state;
+        }
+
+        public string IsLoggedIn(string username, string hostname, string hostIP, 
+            string browser, string browserVersion, bool isMobile)
+        {
+            string id = null;
+            ServiceParameter param = new ServiceParameter().Define(p =>
+            {
+                p.Command = "IsLoggedIn";
+                p.Parameters.Add("username", username);
+                p.Parameters.Add("hostname", hostname);
+                p.Parameters.Add("host_ip", hostIP);
+                p.Parameters.Add("browser", browser);
+                p.Parameters.Add("browser_version", browserVersion);
+                p.Parameters.Add("is_mobile", isMobile);
+            });
+            IWebService service = ServiceFactory.Create();
+            ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
+            if (!runtimeResult.IsNull())
+            {
+                ServiceResult result = ServiceResult.Create(runtimeResult);
+                if (!result.IsNull() && (result.Status == ServiceStatus.Confirmed) && !result.Data.IsNull())
+                {
+                    id = result.Data.Get<string>("id");
+                }
+            }
+            service.Dispose();
+            return id;
         }
 
         public string GetLoggedInUser(string id)
@@ -162,7 +196,7 @@ namespace Toyota.Common.Web.Platform
             ServiceParameter param = new ServiceParameter().Define(p =>
             {
                 p.Command = "GetLoggedInUser";
-                p.Parameters.Add("Id", id);
+                p.Parameters.Add("id", id);
             });
             IWebService service = ServiceFactory.Create();
             ServiceRuntimeResult runtimeResult = service.Execute(param.ToRuntime());
@@ -171,7 +205,7 @@ namespace Toyota.Common.Web.Platform
                 ServiceResult result = ServiceResult.Create(runtimeResult);
                 if (!result.IsNull() && (result.Status == ServiceStatus.Success) && !result.Data.IsNull())
                 {
-                    return result.Data.Get<string>("GetLoggedInUser");
+                    return result.Data.Get<string>("username");
                 }
             }
             service.Dispose();

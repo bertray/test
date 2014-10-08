@@ -15,11 +15,9 @@ using Toyota.Common.Database;
 
 namespace Toyota.Common.SSO
 {
-    internal class CommandIsSessionAlive: ServiceCommand
+    internal class CommandIsAlive: ServiceCommand
     {
-        public const string NAME = "IsSessionAlive";
-
-        public CommandIsSessionAlive() : base(NAME) { }
+        public CommandIsAlive() : base("IsAlive") { }
 
         public override ServiceResult Execute(ServiceParameter parameter)
         {
@@ -33,8 +31,8 @@ namespace Toyota.Common.SSO
                     result = new ServiceResult();
                     db = SSO.Instance.DatabaseManager.GetContext();
                     IList<SSOLoginInfo> logins = db.Fetch<SSOLoginInfo>("Login_SelectById", new { Id = id });
-                    result.Data.Add<bool>("IsSessionAlive", !logins.IsNullOrEmpty());
-                    result.Status = ServiceStatus.Success;
+                    result.Data.Add<bool>("is_alive", !logins.IsNullOrEmpty());
+                    result.Status = ServiceStatus.Confirmed;
                 }
                 finally
                 {

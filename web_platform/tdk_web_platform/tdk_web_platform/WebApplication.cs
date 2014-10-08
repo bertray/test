@@ -419,10 +419,6 @@ namespace Toyota.Common.Web.Platform
         private void InitSecurity()
         {
             //ProviderRegistry.Instance.Register<IEncryptionAgent>(typeof(AES256EncryptionAgent));
-            if (ApplicationSettings.Instance.Security.EnableSingleSignOn)
-            {
-                AjaxExtensionRegistry.Instance.Add(new SingleSignOnAjaxExtension());
-            }
         }
         private void _LoadEssentialProvider()
         {

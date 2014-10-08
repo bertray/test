@@ -16,11 +16,9 @@ using Toyota.Common.Database;
 
 namespace Toyota.Common.SSO
 {
-    internal class CommandIsUserLocked: ServiceCommand
+    internal class CommandIsLocked: ServiceCommand
     {
-        public const string NAME = "IsLocked";
-
-        public CommandIsUserLocked() : base(NAME) { }
+        public CommandIsLocked() : base("IsLocked") { }
 
         public override ServiceResult Execute(ServiceParameter parameter)
         {
@@ -38,7 +36,7 @@ namespace Toyota.Common.SSO
                     if (!logins.IsNullOrEmpty())
                     {
                         SSOLoginInfo login = logins.First();
-                        result.Data.Add<bool>(NAME, login.Locked);
+                        result.Data.Add<bool>("is_locked", login.Locked);
                     }
                     db.Close();
                     result.Status = ServiceStatus.Success;

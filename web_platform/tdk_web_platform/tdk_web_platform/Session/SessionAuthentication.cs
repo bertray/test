@@ -40,7 +40,7 @@ namespace Toyota.Common.Web.Platform
             }
 
             string id = Encoding.UTF8.GetString(HttpServerUtility.UrlTokenDecode(cookie.Value));
-            if (SSOClient.Instance.IsSessionAlive(id))
+            if (SSOClient.Instance.IsAlive(id))
             {
                 ILookup persistedLookup = SSOSessionStorage.Instance.Load(id);
                 if (persistedLookup == null)
@@ -56,6 +56,7 @@ namespace Toyota.Common.Web.Platform
                 userProvider.FetchPlant(user);
                 persistedLookup.Add(user);
                 SSOSessionStorage.Instance.Save(id, persistedLookup);
+                SSOClient.Instance.MarkActive(id);
 
                 session[SessionKeys.LOOKUP] = persistedLookup;
                 SSOSessionLookupListener.RemoveExistingInstance(lookup);

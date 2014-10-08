@@ -42,11 +42,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommandGetLoggedInUser.cs" />
-    <Compile Include="Commands\CommandIsUserLocked.cs" />
+    <Compile Include="Commands\CommandIsLoggedIn.cs" />
+    <Compile Include="Commands\CommandIsLocked.cs" />
     <Compile Include="Commands\CommandLock.cs" />
     <Compile Include="Commands\CommandLogin.cs" />
     <Compile Include="Commands\CommandLogout.cs" />
-    <Compile Include="Commands\CommandIsSessionAlive.cs" />
+    <Compile Include="Commands\CommandIsAlive.cs" />
     <Compile Include="Commands\CommandMarkActive.cs" />
     <Compile Include="Commands\CommandUnlock.cs" />
     <Compile Include="Configurations.cs" />
@@ -96,6 +97,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SQL\Login_MarkActive.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Login_SelectLoggedIn.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -18,12 +18,7 @@ namespace Toyota.Common.SSO
 {
     internal class CommandGetLoggedInUser: ServiceCommand
     {
-        public const string NAME = "GetLoggedInUser";
-
-        public CommandGetLoggedInUser()
-            : base(NAME)
-        {
-        }
+        public CommandGetLoggedInUser() : base("GetLoggedInUser") { }
 
         public override ServiceResult Execute(ServiceParameter parameter)
         {
@@ -40,7 +35,7 @@ namespace Toyota.Common.SSO
                     if (!logins.IsNullOrEmpty())
                     {
                         result.Status = ServiceStatus.Success;
-                        result.Data.Add<string>(NAME, logins.First().Username);
+                        result.Data.Add<string>("username", logins.First().Username);
                     }
                     else
                     {
