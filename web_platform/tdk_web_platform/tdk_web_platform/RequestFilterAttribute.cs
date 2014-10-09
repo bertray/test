@@ -41,7 +41,8 @@ namespace Toyota.Common.Web.Platform
 
             controller.Authentication.Authenticate(filterContext.RequestContext);
             if (!controller.Authentication.IsValid)
-            {                
+            {
+                session.Remove("_tdkAuthorizedApplicationMenu");
                 filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(
                     new { 
                         Controller = ApplicationSettings.Instance.Security.LoginController, 

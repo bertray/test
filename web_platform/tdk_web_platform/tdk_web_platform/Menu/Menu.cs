@@ -168,5 +168,33 @@ namespace Toyota.Common.Web.Platform
 
         public bool IsRestricted { set; get; }
         public IList<Role> Roles { private set; get; }
+
+        public Menu Clone()
+        {
+            Menu menu = new Menu();
+            menu.Id = Id;
+            menu.Text = Text;
+            menu.Description = Description;
+            menu.NavigateUrl = NavigateUrl;
+            menu.Callback = Callback;
+            menu.OpeningTarget = OpeningTarget;
+            menu.IconUrl = IconUrl;
+            menu.Glyph = Glyph;
+            menu.Parent = Parent;
+            menu.Separator = Separator;
+            menu.Enabled = Enabled;
+            menu.Visible = Visible;
+            menu.IsRestricted = IsRestricted;
+            foreach (Menu m in Children)
+            {
+                menu.AddChildren(m);
+            }
+            foreach (Role role in Roles)
+            {
+                menu.Roles.Add(role);
+            }
+
+            return menu;
+        }
     }
 }

@@ -17,6 +17,8 @@ using System.IO;
 using System.Dynamic;
 using System.Web.Routing;
 using System.Reflection;
+using System.Web;
+using System.Web.SessionState;
 
 namespace Toyota.Common.Web.Platform
 {
@@ -228,17 +230,21 @@ namespace Toyota.Common.Web.Platform
         {
             get
             {
-                object o_auth_menu = Helper.ViewData["_tdkAuthorizedApplicationMenu"];
-                if (!o_auth_menu.IsNull())
+                HttpContext httpContext = HttpContext.Current;
+                HttpSessionState session = httpContext.Session;
+                if (!session.IsNewSession)
                 {
-                    return (MenuList) o_auth_menu;
+                    object o_auth_menu = session["_tdkAuthorizedApplicationMenu"];
+                    if (!o_auth_menu.IsNull())
+                    {
+                        return (MenuList)o_auth_menu;
+                    }
                 }
 
                 MenuList menu = Menu;
-                object o_menu = Helper.ViewData["_tdkApplicationMenu"];
-                if (o_menu != null)
+                if (menu.IsNull())
                 {
-                    menu = (MenuList)o_menu;
+                    return null;
                 }
 
                 User user = User;
@@ -246,198 +252,338 @@ namespace Toyota.Common.Web.Platform
                 {
                     return menu;
                 }
-                if (!menu.IsNull())
+
+                MenuList authorizedMenu = new MenuList();
+                menu.IterateByAction(m =>
                 {
-                    MenuList _authorizedMenu = new MenuList();
-                    bool authorized;
-                    bool userHasRole = !user.Roles.IsNullOrEmpty();
-                    foreach (Menu m in menu)
+                    authorizedMenu.Add(m.Clone());
+                });
+
+                IList<Menu> unauthorizedMenu = new List<Menu>();
+                authorizedMenu.IterateByAction(m =>
+                {
+                    if (!IsMenuAuthorized(m, user))
                     {
-                        authorized = false;                        
-                        if (m.Roles.IsNullOrEmpty() && !m.IsRestricted)
-                        {
-                            authorized = true;
-                        }
-                        else if(userHasRole)
-                        {                            
-                            foreach (Role role in user.Roles)
-                            {
-                                authorized |= IsMenuAuthorized(m, role);
-                            }                            
-                        }
-                        authorized |= FilterAuthorizedMenuItem(m, user.Roles);
-                        if (authorized)
-                        {
-                            _authorizedMenu.Add(m);
-                        }
+                        unauthorizedMenu.Add(m);
                     }
-                    Helper.ViewData["_tdkAuthorizedApplicationMenu"] = _authorizedMenu;
-                    menu = _authorizedMenu;
-                }
-                return menu;
+                });
+                unauthorizedMenu.IterateByAction(m => {
+                    authorizedMenu.Remove(m);
+                });
+                session["_tdkAuthorizedApplicationMenu"] = authorizedMenu;
+                return authorizedMenu;
             }
         }
-        private bool FilterAuthorizedMenuItem(Menu parent, IList<Role> roles)
-        {
-            if (!parent.IsNull() && !roles.IsNullOrEmpty() && parent.HasChildren())
+        private bool IsMenuAuthorized(Menu menu, User user)
+        {            
+            bool authorized = IsMenuItemAuthorized(menu, user);
+            if (authorized && menu.HasChildren())
             {
-                bool authorized;
-                bool hasAuthorizedItem = false;
-                IList<Menu> unauthorizeds = new List<Menu>();
-                foreach (Menu submenu in parent.Children)
-                {
-                    if (parent.IsRestricted)
+                IList<Menu> unauthorizedChildren = new List<Menu>();
+                menu.Children.IterateByAction(m => {
+                    if (!IsMenuAuthorized(m, user))
                     {
-                        submenu.IsRestricted = parent.IsRestricted;
+                        unauthorizedChildren.Add(m);
                     }
-
-                    authorized = false;
-                    if (submenu.Roles.IsNullOrEmpty() && !parent.IsRestricted)
-                    {
-                        authorized = true;
-                    }
-                    else
-                    {
-                        foreach (Role r in roles)
-                        {
-                            authorized |= IsMenuAuthorized(submenu, r);
-                        }
-                    }
-                    authorized |= FilterAuthorizedMenuItem(submenu, roles);
-                    hasAuthorizedItem |= authorized;
-                    if(!authorized)
-                    {
-                        unauthorizeds.Add(submenu);
-                    }
-                }
-
-                if (!unauthorizeds.IsNullOrEmpty())
-                {
-                    foreach (Menu _m in unauthorizeds)
-                    {
-                        parent.RemoveChildren(_m);
-                    }
-                }
-
-                return hasAuthorizedItem;
+                });
+                unauthorizedChildren.IterateByAction(m => {
+                    menu.RemoveChildren(m);
+                });
             }
-
-            return false;
+            return authorized;
         }
-        private bool IsMenuAuthorized(Menu menu, Role role)
+        private bool IsMenuItemAuthorized(Menu menu, User user)
         {
-            if (menu.Roles.IsNullOrEmpty() && !menu.IsRestricted)
+            if (menu.IsNull())
+            {
+                return false;
+            }
+            if (menu.Roles.IsNullOrEmpty())
             {
                 return true;
             }
-            if(role.IsNull()) 
+            if (user.IsNull())
+            {
+                return false;
+            }
+            if (user.Roles.IsNullOrEmpty())
             {
                 return false;
             }
 
-            string roleId = role.Id;
             bool authorized = false;
+            string roleId;
             AuthorizationFunction _mfunction;
             AuthorizationFunction _function;
             AuthorizationFeature _mfeature;
             AuthorizationFeature _feature;
             AuthorizationFeatureQualifier _mqualifier;
             AuthorizationFeatureQualifier _qualifier;
-            foreach (Role mrole in menu.Roles)
+
+            foreach(Role role in user.Roles) 
             {
-                _mfunction = null;
-                _function = null;
-                _mfeature = null;
-                _feature = null;
-                _mqualifier = null;
-                _qualifier = null;
+                roleId = role.Id;
+                foreach (Role mrole in menu.Roles)
+                {
+                    _mfunction = null;
+                    _function = null;
+                    _mfeature = null;
+                    _feature = null;
+                    _mqualifier = null;
+                    _qualifier = null;
 
-                if (!mrole.Id.Equals(roleId))
-                {
-                    authorized |= false;
-                    continue;
-                }
-
-                if (mrole.Functions.IsNullOrEmpty())
-                {
-                    authorized |= true;
-                    continue;
-                }
-                if (role.Functions.IsNullOrEmpty())
-                {
-                    authorized |= false;
-                    continue;
-                }
-
-                mrole.Functions.FindAgainst(role.Functions, (tfunc, ofunc) => {
-                    return tfunc.Id.StringEquals(ofunc.Id);
-                }, (tfunc, ofunc) => { 
-                    _mfunction = tfunc;
-                    _function = ofunc;
-                });
-                if (_mfunction.IsNull())
-                {
-                    authorized |= false;
-                    continue;
-                }
-                
-                authorized |= true;
-
-                if (_mfunction.Features.IsNullOrEmpty())
-                {
-                    continue;
-                }
-                if (_function.Features.IsNullOrEmpty())
-                {
-                    authorized = false;
-                    continue;
-                }
-
-                foreach (AuthorizationFunction func in role.Functions)
-                {
-                    _mfunction.Features.FindAgainst(func.Features, (tfeat, ofeat) =>
+                    if (!mrole.Id.Equals(roleId))
                     {
-                        return tfeat.Id.StringEquals(ofeat.Id);
-                    }, (tfeat, ofeat) => {
-                        _mfeature = tfeat;
-                        _feature = ofeat;
-                    });
-                }
-                if (_mfeature.IsNull())
-                {
-                    authorized = false;
-                    continue;
-                }
-                if (_mfeature.Qualifiers.IsNullOrEmpty())
-                {
-                    continue;
-                }
-                if (_feature.Qualifiers.IsNullOrEmpty())
-                {
-                    authorized = false;
-                    continue;
-                }
+                        authorized |= false;
+                        continue;
+                    }
 
-                _mfeature.Qualifiers.FindAgainst(_feature.Qualifiers, (tq, oq) =>
-                {
-                    return tq.Key.StringEquals(oq.Key) && tq.Qualifier.StringEquals(oq.Qualifier);
-                }, (tq, oq) =>
-                {
-                    _mqualifier = tq;
-                    _qualifier = oq;
-                });
-                if (_mqualifier.IsNull())
-                {
-                    authorized = false;
-                    continue;
-                }
-                if (!_mqualifier.Qualifier.StringEquals(_qualifier.Qualifier))
-                {
-                    authorized = false;
+                    if (mrole.Functions.IsNullOrEmpty())
+                    {
+                        authorized |= true;
+                        continue;
+                    }
+                    if (role.Functions.IsNullOrEmpty())
+                    {
+                        authorized |= false;
+                        continue;
+                    }
+
+                    mrole.Functions.FindAgainst(role.Functions, (tfunc, ofunc) =>
+                    {
+                        return tfunc.Id.StringEquals(ofunc.Id);
+                    }, (tfunc, ofunc) =>
+                    {
+                        _mfunction = tfunc;
+                        _function = ofunc;
+                    });
+                    if (_mfunction.IsNull())
+                    {
+                        authorized |= false;
+                        continue;
+                    }
+
+                    authorized |= true;
+
+                    if (_mfunction.Features.IsNullOrEmpty())
+                    {
+                        continue;
+                    }
+                    if (_function.Features.IsNullOrEmpty())
+                    {
+                        authorized = false;
+                        continue;
+                    }
+
+                    foreach (AuthorizationFunction func in role.Functions)
+                    {
+                        _mfunction.Features.FindAgainst(func.Features, (tfeat, ofeat) =>
+                        {
+                            return tfeat.Id.StringEquals(ofeat.Id);
+                        }, (tfeat, ofeat) =>
+                        {
+                            _mfeature = tfeat;
+                            _feature = ofeat;
+                        });
+                    }
+                    if (_mfeature.IsNull())
+                    {
+                        authorized = false;
+                        continue;
+                    }
+                    if (_mfeature.Qualifiers.IsNullOrEmpty())
+                    {
+                        continue;
+                    }
+                    if (_feature.Qualifiers.IsNullOrEmpty())
+                    {
+                        authorized = false;
+                        continue;
+                    }
+
+                    _mfeature.Qualifiers.FindAgainst(_feature.Qualifiers, (tq, oq) =>
+                    {
+                        return tq.Key.StringEquals(oq.Key) && tq.Qualifier.StringEquals(oq.Qualifier);
+                    }, (tq, oq) =>
+                    {
+                        _mqualifier = tq;
+                        _qualifier = oq;
+                    });
+                    if (_mqualifier.IsNull())
+                    {
+                        authorized = false;
+                        continue;
+                    }
+                    if (!_mqualifier.Qualifier.StringEquals(_qualifier.Qualifier))
+                    {
+                        authorized = false;
+                    }
                 }
             }
+
             return authorized;
         }
+        //private bool FilterAuthorizedMenuItem(Menu parent, IList<Role> roles)
+        //{
+        //    if (!parent.IsNull() && !roles.IsNullOrEmpty() && parent.HasChildren())
+        //    {
+        //        bool authorized;
+        //        bool hasAuthorizedItem = false;
+        //        IList<Menu> unauthorizeds = new List<Menu>();
+        //        foreach (Menu submenu in parent.Children)
+        //        {
+        //            if (parent.IsRestricted)
+        //            {
+        //                submenu.IsRestricted = parent.IsRestricted;
+        //            }
+
+        //            authorized = false;
+        //            if (submenu.Roles.IsNullOrEmpty() && !parent.IsRestricted)
+        //            {
+        //                authorized = true;
+        //            }
+        //            else
+        //            {
+        //                foreach (Role r in roles)
+        //                {
+        //                    authorized |= IsMenuAuthorized(submenu, r);
+        //                }
+        //            }
+        //            authorized |= FilterAuthorizedMenuItem(submenu, roles);
+        //            hasAuthorizedItem |= authorized;
+        //            if(!authorized)
+        //            {
+        //                unauthorizeds.Add(submenu);
+        //            }
+        //        }
+
+        //        if (!unauthorizeds.IsNullOrEmpty())
+        //        {
+        //            foreach (Menu _m in unauthorizeds)
+        //            {
+        //                parent.RemoveChildren(_m);
+        //            }
+        //        }
+
+        //        return hasAuthorizedItem;
+        //    }
+
+        //    return false;
+        //}
+        //private bool IsMenuAuthorized(Menu menu, Role role)
+        //{
+        //    if (menu.Roles.IsNullOrEmpty() && !menu.IsRestricted)
+        //    {
+        //        return true;
+        //    }
+        //    if(role.IsNull()) 
+        //    {
+        //        return false;
+        //    }
+
+        //    string roleId = role.Id;
+        //    bool authorized = false;
+        //    AuthorizationFunction _mfunction;
+        //    AuthorizationFunction _function;
+        //    AuthorizationFeature _mfeature;
+        //    AuthorizationFeature _feature;
+        //    AuthorizationFeatureQualifier _mqualifier;
+        //    AuthorizationFeatureQualifier _qualifier;
+        //    foreach (Role mrole in menu.Roles)
+        //    {
+        //        _mfunction = null;
+        //        _function = null;
+        //        _mfeature = null;
+        //        _feature = null;
+        //        _mqualifier = null;
+        //        _qualifier = null;
+
+        //        if (!mrole.Id.Equals(roleId))
+        //        {
+        //            authorized |= false;
+        //            continue;
+        //        }
+
+        //        if (mrole.Functions.IsNullOrEmpty())
+        //        {
+        //            authorized |= true;
+        //            continue;
+        //        }
+        //        if (role.Functions.IsNullOrEmpty())
+        //        {
+        //            authorized |= false;
+        //            continue;
+        //        }
+
+        //        mrole.Functions.FindAgainst(role.Functions, (tfunc, ofunc) => {
+        //            return tfunc.Id.StringEquals(ofunc.Id);
+        //        }, (tfunc, ofunc) => { 
+        //            _mfunction = tfunc;
+        //            _function = ofunc;
+        //        });
+        //        if (_mfunction.IsNull())
+        //        {
+        //            authorized |= false;
+        //            continue;
+        //        }
+                
+        //        authorized |= true;
+
+        //        if (_mfunction.Features.IsNullOrEmpty())
+        //        {
+        //            continue;
+        //        }
+        //        if (_function.Features.IsNullOrEmpty())
+        //        {
+        //            authorized = false;
+        //            continue;
+        //        }
+
+        //        foreach (AuthorizationFunction func in role.Functions)
+        //        {
+        //            _mfunction.Features.FindAgainst(func.Features, (tfeat, ofeat) =>
+        //            {
+        //                return tfeat.Id.StringEquals(ofeat.Id);
+        //            }, (tfeat, ofeat) => {
+        //                _mfeature = tfeat;
+        //                _feature = ofeat;
+        //            });
+        //        }
+        //        if (_mfeature.IsNull())
+        //        {
+        //            authorized = false;
+        //            continue;
+        //        }
+        //        if (_mfeature.Qualifiers.IsNullOrEmpty())
+        //        {
+        //            continue;
+        //        }
+        //        if (_feature.Qualifiers.IsNullOrEmpty())
+        //        {
+        //            authorized = false;
+        //            continue;
+        //        }
+
+        //        _mfeature.Qualifiers.FindAgainst(_feature.Qualifiers, (tq, oq) =>
+        //        {
+        //            return tq.Key.StringEquals(oq.Key) && tq.Qualifier.StringEquals(oq.Qualifier);
+        //        }, (tq, oq) =>
+        //        {
+        //            _mqualifier = tq;
+        //            _qualifier = oq;
+        //        });
+        //        if (_mqualifier.IsNull())
+        //        {
+        //            authorized = false;
+        //            continue;
+        //        }
+        //        if (!_mqualifier.Qualifier.StringEquals(_qualifier.Qualifier))
+        //        {
+        //            authorized = false;
+        //        }
+        //    }
+        //    return authorized;
+        //}
         private dynamic BuildMenuItem(Menu menu)
         {
             dynamic jsMenu = new ExpandoObject();

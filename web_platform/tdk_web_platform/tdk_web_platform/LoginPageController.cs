@@ -151,7 +151,8 @@ namespace Toyota.Common.Web.Platform
 
             if (loggedOut)
             {
-                Lookup.Remove<User>();                
+                Lookup.Remove<User>();
+                Session.Remove("_tdkAuthorizedApplicationMenu");
             }
 
             return new MvcHtmlString(loggedOut ? "true" : "false");
