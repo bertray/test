@@ -166,7 +166,6 @@ namespace Toyota.Common.Web.Platform
             get { return GetType().ToString(); }
         }
 
-        public bool IsRestricted { set; get; }
         public IList<Role> Roles { private set; get; }
 
         public Menu Clone()
@@ -184,7 +183,6 @@ namespace Toyota.Common.Web.Platform
             menu.Separator = Separator;
             menu.Enabled = Enabled;
             menu.Visible = Visible;
-            menu.IsRestricted = IsRestricted;
             foreach (Menu m in Children)
             {
                 menu.AddChildren(m);

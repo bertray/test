@@ -252,11 +252,6 @@ namespace Toyota.Common.Web.Platform
             {
                 menu.Glyph = attribute.Value;
             }
-            attribute = attributes["Restricted"];
-            if (attribute != null)
-            {
-                menu.IsRestricted = Convert.ToBoolean(attribute.Value.ToLower());
-            }
             attribute = attributes["Separator"];
             if ((attribute != null) && !string.IsNullOrEmpty(attribute.Value))
             {
@@ -325,6 +320,11 @@ namespace Toyota.Common.Web.Platform
                                                         {
                                                             foreach (XmlNode qfNode in featNode.ChildNodes)
                                                             {
+                                                                if (!qfNode.Name.Equals("qualifier"))
+                                                                {
+                                                                    continue;
+                                                                }
+
                                                                 qualifier = new AuthorizationFeatureQualifier();
                                                                 attribute = qfNode.Attributes["Key"];
                                                                 if (!attribute.IsNull())
